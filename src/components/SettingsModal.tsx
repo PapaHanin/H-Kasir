@@ -619,33 +619,43 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           )}
 
-          {/* TAB 5: SINKRONISASI AWAN OPSIONAL */}
+          {/* TAB 5: SINKRONISASI AWAN FIREBASE */}
           {activeTab === 'CLOUD' && (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-900 dark:text-blue-200 space-y-2">
-                <div className="font-bold flex items-center gap-1.5 text-blue-700 dark:text-blue-300">
-                  <Cloud className="w-5 h-5 text-blue-500" />
-                  <span>Cadangan Awan Opsional (Cloud Sync)</span>
+              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-950 dark:text-emerald-200 space-y-2">
+                <div className="font-bold flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
+                  <Cloud className="w-5 h-5 text-emerald-500" />
+                  <span>Sinkronisasi Cloud Firestore Aktif (Multi-Device & Auto-Backup)</span>
                 </div>
-                <p className="opacity-90">
-                  Sinkronisasikan database terenkripsi ke awan secara berkala agar Anda tetap dapat memulihkan data jika berganti tablet atau perangkat kasir.
+                <p className="opacity-90 leading-relaxed">
+                  Database Anda kini terhubung ke <strong>Google Firebase Firestore</strong>. Setiap transaksi kasir, perubahan harga, atau pengurangan stok di perangkat ini akan <strong>tersinkronisasi secara otomatis ke seluruh HP/tablet kasir lainnya secara real-time</strong>.
                 </p>
-                {lastSyncTime && (
-                  <div className="font-semibold font-mono text-emerald-600 dark:text-emerald-400">
-                    ✓ Terakhir Disinkronkan: {lastSyncTime}
-                  </div>
-                )}
+                <div className="flex flex-wrap gap-2 pt-1 font-mono text-[11px]">
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold">
+                    ✓ Anti-Hilang (Cloud Persistence)
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 font-bold">
+                    ✓ Multi-Kasir Real-time
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-slate-500/20 text-slate-700 dark:text-slate-300 font-bold">
+                    ✓ Tetap Berjalan Saat Offline
+                  </span>
+                </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 space-y-3">
+                <h4 className="font-bold text-xs">Aksi Sinkronisasi Manual</h4>
+                <p className="text-[11px] text-slate-500">
+                  Secara default sistem melakukan sinkronisasi otomatis. Anda juga dapat memaksa pengiriman data lokal saat ini ke server cloud:
+                </p>
                 <button
                   type="button"
                   onClick={handleCloudSync}
                   disabled={isSyncing}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all"
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <CloudUpload className="w-4 h-4" />
-                  <span>{isSyncing ? 'Sedang Menyinkronkan...' : 'Sinkronkan Data ke Awan Sekarang'}</span>
+                  <span>{isSyncing ? 'Sedang Menyinkronkan...' : 'Paksa Sinkronkan Semua Data Toko ke Cloud'}</span>
                 </button>
               </div>
             </div>

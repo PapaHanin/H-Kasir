@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Product,
   Transaction,
@@ -11,6 +11,7 @@ import {
   HeldCart,
 } from './types';
 import { db } from './services/db';
+import { cloudSync } from './services/cloudSync';
 import { sound } from './services/sound';
 import { Navbar } from './components/Navbar';
 import { LoginModal } from './components/LoginModal';
@@ -33,6 +34,7 @@ export default function App() {
   const [settings, setSettings] = useState<StoreSettings>(db.load().settings);
   const [stockLogs, setStockLogs] = useState<StockLog[]>([]);
   const [heldCarts, setHeldCarts] = useState<HeldCart[]>([]);
+  const [cloudSyncStatus, setCloudSyncStatus] = useState<'ONLINE' | 'OFFLINE' | 'SYNCED'>('SYNCED');
 
   // App UI State
   const [currentUser, setCurrentUser] = useState<CashierUser | null>(null);
@@ -50,7 +52,10 @@ export default function App() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<Transaction | null>(null);
 
-  // Load database on mount
+  // Sync debounce ref to avoid excessive cloud writes
+  const isSyncingFromCloudRef = useRef(false);
+
+  // Load local database on mount
   const loadDatabase = useCallback(() => {
     const data = db.load();
     setProducts(data.products || []);
@@ -63,16 +68,82 @@ export default function App() {
     setStockLogs(data.stockLogs || []);
     setHeldCarts(data.heldCarts || []);
     sound.enabled = data.settings?.playAudioFeedback ?? true;
-
-    // Set initial user if only 1 active or owner
-    if (!currentUser && data.users?.length > 0) {
-      // Prompt for PIN on initial screen
-    }
-  }, [currentUser]);
+  }, []);
 
   useEffect(() => {
     loadDatabase();
   }, [loadDatabase]);
+
+  // Real-time Cloud Synchronization (Firebase Firestore)
+  useEffect(() => {
+    // 1. Initial Cloud Pull & Sync
+    cloudSync.pullFullStoreFromCloud().then((cloudData) => {
+      if (cloudData && (cloudData.products || cloudData.transactions)) {
+        isSyncingFromCloudRef.current = true;
+        if (cloudData.products && cloudData.products.length > 0) {
+          setProducts(cloudData.products);
+        }
+        if (cloudData.transactions && cloudData.transactions.length > 0) {
+          setTransactions(cloudData.transactions);
+        }
+        if (cloudData.debts && cloudData.debts.length > 0) {
+          setDebts(cloudData.debts);
+        }
+        if (cloudData.settings) {
+          setSettings(cloudData.settings);
+        }
+        setTimeout(() => {
+          isSyncingFromCloudRef.current = false;
+        }, 500);
+      } else {
+        // First time cloud initialization: push initial local seed
+        const current = db.load();
+        cloudSync.pushFullStoreToCloud(current);
+      }
+    });
+
+    // 2. Real-time Live Listener for Multi-Device Multi-Cashier Sync
+    const unsub = cloudSync.subscribeToRealtimeChanges(
+      (newProducts) => {
+        isSyncingFromCloudRef.current = true;
+        setProducts(newProducts);
+        const current = db.load();
+        db.save({ ...current, products: newProducts });
+        setTimeout(() => {
+          isSyncingFromCloudRef.current = false;
+        }, 300);
+      },
+      (newTransactions) => {
+        isSyncingFromCloudRef.current = true;
+        setTransactions(newTransactions);
+        const current = db.load();
+        db.save({ ...current, transactions: newTransactions });
+        setTimeout(() => {
+          isSyncingFromCloudRef.current = false;
+        }, 300);
+      },
+      (newDebts) => {
+        isSyncingFromCloudRef.current = true;
+        setDebts(newDebts);
+        const current = db.load();
+        db.save({ ...current, debts: newDebts });
+        setTimeout(() => {
+          isSyncingFromCloudRef.current = false;
+        }, 300);
+      },
+      (newSettings) => {
+        isSyncingFromCloudRef.current = true;
+        setSettings(newSettings);
+        const current = db.load();
+        db.save({ ...current, settings: newSettings });
+        setTimeout(() => {
+          isSyncingFromCloudRef.current = false;
+        }, 300);
+      }
+    );
+
+    return () => unsub();
+  }, []);
 
   // Sync dark mode class with DOM
   useEffect(() => {
@@ -85,7 +156,7 @@ export default function App() {
     }
   }, [darkMode]);
 
-  // Helper to persist all state to AES-256 encrypted database
+  // Helper to persist all state to local encrypted database AND Cloud Firestore
   const persistDatabase = (updated: {
     products?: Product[];
     transactions?: Transaction[];
@@ -103,6 +174,13 @@ export default function App() {
       ...updated,
     };
     db.save(nextSchema);
+
+    // Sync changes to Cloud Firestore
+    if (!isSyncingFromCloudRef.current) {
+      cloudSync.pushFullStoreToCloud(nextSchema).then((success) => {
+        setCloudSyncStatus(success ? 'SYNCED' : 'OFFLINE');
+      });
+    }
   };
 
   // Transaction completed event (stock deduction + receipt trigger)
@@ -451,6 +529,7 @@ export default function App() {
         onOpenShiftModal={() => setIsShiftModalOpen(true)}
         onLogout={() => setCurrentUser(null)}
         cartItemCount={cart.reduce((s, i) => s + i.quantity, 0)}
+        cloudSyncStatus={cloudSyncStatus}
       />
 
       {/* 2. Main Tab Screens */}

@@ -26,6 +26,7 @@ interface NavbarProps {
   onOpenShiftModal: () => void;
   onLogout: () => void;
   cartItemCount: number;
+  cloudSyncStatus?: 'ONLINE' | 'OFFLINE' | 'SYNCED';
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -39,6 +40,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenShiftModal,
   onLogout,
   cartItemCount,
+  cloudSyncStatus = 'SYNCED',
 }) => {
   return (
     <header
@@ -65,10 +67,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <ShieldCheck className="w-3 h-3 text-emerald-500" />
                   AES-256
                 </span>
-                <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-medium bg-slate-100 text-slate-700 dark:bg-slate-800/80 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 px-2 py-0.5 rounded-md">
+                <span
+                  title="Sinkronisasi Multi-Device Cloud Firestore Aktif"
+                  className={`hidden md:inline-flex items-center gap-1.5 text-[11px] font-medium border px-2 py-0.5 rounded-md ${
+                    cloudSyncStatus === 'SYNCED'
+                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                      : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-300 dark:border-amber-800'
+                  }`}
+                >
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   <Wifi className="w-3 h-3 text-emerald-500" />
-                  Luring / Offline
+                  <span>Cloud Sync Aktif</span>
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block truncate max-w-[280px]">

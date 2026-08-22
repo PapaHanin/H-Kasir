@@ -1,0 +1,220 @@
+import {
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  writeBatch,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { db as firestoreDb } from './firebase';
+import {
+  Product,
+  Transaction,
+  CustomerDebt,
+  CashierUser,
+  CashierShift,
+  StoreSettings,
+  StockLog,
+} from '../types';
+
+export interface CloudSyncState {
+  status: 'ONLINE' | 'OFFLINE' | 'SYNCING' | 'ERROR';
+  lastSyncedAt: string | null;
+  syncedStoresCount: number;
+}
+
+const STORE_ID = 'toko_kelontong_main';
+
+export class CloudSyncService {
+  private unsubscribeListeners: Array<() => void> = [];
+  private isOnline: boolean = typeof navigator !== 'undefined' ? navigator.onLine : true;
+
+  constructor() {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', () => {
+        this.isOnline = true;
+      });
+      window.addEventListener('offline', () => {
+        this.isOnline = false;
+      });
+    }
+  }
+
+  // Push Full Store State to Cloud Firestore
+  public async pushFullStoreToCloud(data: {
+    products: Product[];
+    transactions: Transaction[];
+    debts: CustomerDebt[];
+    users: CashierUser[];
+    settings: StoreSettings;
+    stockLogs: StockLog[];
+    shiftHistory: CashierShift[];
+    activeShift: CashierShift | null;
+  }): Promise<boolean> {
+    try {
+      const storeRef = doc(firestoreDb, 'stores', STORE_ID);
+      await setDoc(
+        storeRef,
+        {
+          settings: data.settings,
+          activeShift: data.activeShift || null,
+          users: data.users,
+          updatedAt: serverTimestamp(),
+          updatedAtISO: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+
+      // Batch write products for fast sync
+      const batch = writeBatch(firestoreDb);
+      data.products.forEach((prod) => {
+        const pRef = doc(firestoreDb, `stores/${STORE_ID}/products`, prod.id);
+        batch.set(pRef, prod, { merge: true });
+      });
+
+      // Save latest transactions
+      data.transactions.slice(-100).forEach((trx) => {
+        const tRef = doc(firestoreDb, `stores/${STORE_ID}/transactions`, trx.id);
+        batch.set(tRef, trx, { merge: true });
+      });
+
+      // Save customer debts
+      data.debts.forEach((debt) => {
+        const dRef = doc(firestoreDb, `stores/${STORE_ID}/debts`, debt.id);
+        batch.set(dRef, debt, { merge: true });
+      });
+
+      await batch.commit();
+      return true;
+    } catch (err) {
+      console.warn('Cloud sync error (fallback to local):', err);
+      return false;
+    }
+  }
+
+  // Real-time listener for multi-device sync
+  public subscribeToRealtimeChanges(
+    onProductsChange: (products: Product[]) => void,
+    onTransactionsChange: (transactions: Transaction[]) => void,
+    onDebtsChange: (debts: CustomerDebt[]) => void,
+    onSettingsChange: (settings: StoreSettings) => void
+  ): () => void {
+    // Clear old subscriptions
+    this.unsubscribe();
+
+    try {
+      // 1. Listen to Store Settings
+      const storeRef = doc(firestoreDb, 'stores', STORE_ID);
+      const unsubStore = onSnapshot(storeRef, (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.settings) onSettingsChange(data.settings);
+        }
+      });
+      this.unsubscribeListeners.push(unsubStore);
+
+      // 2. Listen to Products Collection (Stock & Price changes in real-time)
+      const productsCol = collection(firestoreDb, `stores/${STORE_ID}/products`);
+      const unsubProducts = onSnapshot(productsCol, (snap) => {
+        if (!snap.empty) {
+          const prods: Product[] = [];
+          snap.forEach((docSnap) => {
+            prods.push(docSnap.data() as Product);
+          });
+          if (prods.length > 0) {
+            onProductsChange(prods);
+          }
+        }
+      });
+      this.unsubscribeListeners.push(unsubProducts);
+
+      // 3. Listen to Transactions Collection
+      const trxCol = collection(firestoreDb, `stores/${STORE_ID}/transactions`);
+      const unsubTrx = onSnapshot(trxCol, (snap) => {
+        if (!snap.empty) {
+          const trxs: Transaction[] = [];
+          snap.forEach((docSnap) => {
+            trxs.push(docSnap.data() as Transaction);
+          });
+          if (trxs.length > 0) {
+            // Sort by date descending
+            trxs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            onTransactionsChange(trxs);
+          }
+        }
+      });
+      this.unsubscribeListeners.push(unsubTrx);
+
+      // 4. Listen to Debts Collection
+      const debtsCol = collection(firestoreDb, `stores/${STORE_ID}/debts`);
+      const unsubDebts = onSnapshot(debtsCol, (snap) => {
+        if (!snap.empty) {
+          const debtsList: CustomerDebt[] = [];
+          snap.forEach((docSnap) => {
+            debtsList.push(docSnap.data() as CustomerDebt);
+          });
+          if (debtsList.length > 0) {
+            onDebtsChange(debtsList);
+          }
+        }
+      });
+      this.unsubscribeListeners.push(unsubDebts);
+    } catch (e) {
+      console.warn('Realtime subscription error:', e);
+    }
+
+    return () => this.unsubscribe();
+  }
+
+  // Pull initial cloud data
+  public async pullFullStoreFromCloud(): Promise<{
+    products?: Product[];
+    transactions?: Transaction[];
+    debts?: CustomerDebt[];
+    settings?: StoreSettings;
+  } | null> {
+    try {
+      const storeRef = doc(firestoreDb, 'stores', STORE_ID);
+      const storeSnap = await getDoc(storeRef);
+      const settings = storeSnap.exists() ? storeSnap.data()?.settings : undefined;
+
+      const productsCol = collection(firestoreDb, `stores/${STORE_ID}/products`);
+      const prodSnap = await getDocs(productsCol);
+      const products: Product[] = [];
+      prodSnap.forEach((d) => products.push(d.data() as Product));
+
+      const trxCol = collection(firestoreDb, `stores/${STORE_ID}/transactions`);
+      const trxSnap = await getDocs(trxCol);
+      const transactions: Transaction[] = [];
+      trxSnap.forEach((d) => transactions.push(d.data() as Transaction));
+
+      const debtsCol = collection(firestoreDb, `stores/${STORE_ID}/debts`);
+      const debtSnap = await getDocs(debtsCol);
+      const debts: CustomerDebt[] = [];
+      debtSnap.forEach((d) => debts.push(d.data() as CustomerDebt));
+
+      return {
+        products: products.length > 0 ? products : undefined,
+        transactions: transactions.length > 0 ? transactions : undefined,
+        debts: debts.length > 0 ? debts : undefined,
+        settings,
+      };
+    } catch (err) {
+      console.warn('Error pulling cloud data:', err);
+      return null;
+    }
+  }
+
+  public unsubscribe() {
+    this.unsubscribeListeners.forEach((unsub) => {
+      try {
+        unsub();
+      } catch {}
+    });
+    this.unsubscribeListeners = [];
+  }
+}
+
+export const cloudSync = new CloudSyncService();

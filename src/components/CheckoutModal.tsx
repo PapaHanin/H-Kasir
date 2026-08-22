@@ -426,19 +426,29 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
                 <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-600 dark:text-emerald-300 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 shrink-0 text-emerald-500" />
-                  <span>Jumlah tagihan <strong className="font-numeric font-black">{formatRupiah(grandTotal)}</strong> otomatis terbaca di smartphone pembeli!</span>
+                  <span>Jumlah tagihan <strong className="font-numeric font-black">{formatRupiah(grandTotal)}</strong> otomatis tercantum di QR (Dinamis)!</span>
                 </div>
 
-                {/* Instant Verification simulation button */}
-                <button
-                  id="btn-simulate-qris-paid"
-                  type="button"
-                  onClick={() => handleCompleteTransaction('QRIS')}
-                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Simulasi Bayar / Konfirmasi QRIS Sukses</span>
-                </button>
+                {/* Instant Verification & Notification */}
+                <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-2">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 font-mono">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                      Status: Menunggu Pembayaran QRIS
+                    </span>
+                    <span className="text-emerald-600 font-bold">NMID Terdaftar</span>
+                  </div>
+                  
+                  <button
+                    id="btn-simulate-qris-paid"
+                    type="button"
+                    onClick={() => handleCompleteTransaction('QRIS')}
+                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Konfirmasi Pembayaran QRIS Masuk</span>
+                  </button>
+                </div>
               </div>
             </div>
           )}
