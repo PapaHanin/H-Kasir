@@ -339,11 +339,20 @@ export default function App() {
     persistDatabase({ products: updatedProducts });
   };
 
-  // Inventory Delete Product
+  // Inventory Delete Product (single)
   const handleDeleteProduct = (productId: string) => {
     const updatedProducts = products.filter((p) => p.id !== productId);
     setProducts(updatedProducts);
     persistDatabase({ products: updatedProducts });
+  };
+
+  // Inventory Bulk Delete Products
+  const handleBulkDeleteProducts = (productIds: string[]) => {
+    const idSet = new Set(productIds);
+    const updatedProducts = products.filter((p) => !idSet.has(p.id));
+    setProducts(updatedProducts);
+    persistDatabase({ products: updatedProducts });
+    sound.playSuccess();
   };
 
   // Inventory Adjust Stock
@@ -553,6 +562,7 @@ export default function App() {
             products={products}
             onSaveProduct={handleSaveProduct}
             onDeleteProduct={handleDeleteProduct}
+            onBulkDeleteProducts={handleBulkDeleteProducts}
             onAdjustStock={handleAdjustStock}
             stockLogs={stockLogs}
             settings={settings}

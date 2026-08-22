@@ -13,6 +13,10 @@ import {
   Check,
   X,
   Coins,
+  CheckSquare,
+  Square,
+  Layers,
+  CheckCircle2,
 } from 'lucide-react';
 import { Product, ProductCategory, StockLog, StoreSettings } from '../types';
 import { formatRupiah, exportStockToExcel, exportStockPDF } from '../services/export';
@@ -35,6 +39,7 @@ interface InventoryViewProps {
   products: Product[];
   onSaveProduct: (product: Product) => void;
   onDeleteProduct: (productId: string) => void;
+  onBulkDeleteProducts?: (productIds: string[]) => void;
   onAdjustStock: (productId: string, quantityChange: number, reason: string) => void;
   stockLogs: StockLog[];
   settings: StoreSettings;
@@ -45,6 +50,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   products,
   onSaveProduct,
   onDeleteProduct,
+  onBulkDeleteProducts,
   onAdjustStock,
   stockLogs,
   settings,
@@ -60,6 +66,11 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [adjustingProduct, setAdjustingProduct] = useState<Product | null>(null);
   const [priceAdjustProduct, setPriceAdjustProduct] = useState<Product | null>(null);
+
+  // Checkbox Selection State
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  const [isBulkCategoryModalOpen, setIsBulkCategoryModalOpen] = useState(false);
+  const [bulkCategoryTarget, setBulkCategoryTarget] = useState<ProductCategory>('Sembako & Beras');
 
   // Quick Price Adjustment Form
   const [quickSellPrice, setQuickSellPrice] = useState<number>(0);
@@ -210,6 +221,60 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
     setIsAdjustModalOpen(false);
   };
 
+  // Checkbox Selection Helpers
+  const isAllSelected = useMemo(() => {
+    if (filteredProducts.length === 0) return false;
+    return filteredProducts.every((p) => selectedProductIds.includes(p.id));
+  }, [filteredProducts, selectedProductIds]);
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedProductIds([]);
+    } else {
+      setSelectedProductIds(filteredProducts.map((p) => p.id));
+    }
+  };
+
+  const toggleSelectProduct = (productId: string) => {
+    setSelectedProductIds((prev) =>
+      prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
+    );
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedProductIds.length === 0) return;
+    if (
+      confirm(
+        `Yakin ingin menghapus ${selectedProductIds.length} barang yang dicentang sekaligus? Data yang dihapus tidak dapat dikembalikan.`
+      )
+    ) {
+      if (onBulkDeleteProducts) {
+        onBulkDeleteProducts(selectedProductIds);
+      } else {
+        selectedProductIds.forEach((id) => onDeleteProduct(id));
+      }
+      setSelectedProductIds([]);
+      sound.playSuccess();
+    }
+  };
+
+  const handleBulkChangeCategory = () => {
+    if (selectedProductIds.length === 0) return;
+    selectedProductIds.forEach((id) => {
+      const prod = products.find((p) => p.id === id);
+      if (prod) {
+        onSaveProduct({
+          ...prod,
+          category: bulkCategoryTarget,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+    });
+    setSelectedProductIds([]);
+    setIsBulkCategoryModalOpen(false);
+    sound.playSuccess();
+  };
+
   return (
     <div id="inventory-management-container" className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-5 space-y-5">
       {/* Header & Action Buttons */}
@@ -260,13 +325,62 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
             id="btn-add-product"
             type="button"
             onClick={openAddModal}
-            className="px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 hover:bg-emerald-500 dark:hover:bg-emerald-400 flex items-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95 transition-all tracking-wide"
+            className="px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 hover:bg-emerald-500 dark:hover:bg-emerald-400 flex items-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95 transition-all tracking-wide cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Barang Baru</span>
           </button>
         </div>
       </div>
+
+      {/* Bulk Action Bar (Shows when items are checked) */}
+      {selectedProductIds.length > 0 && (
+        <div className="p-3.5 rounded-2xl bg-emerald-600 text-white shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center font-black text-sm font-mono">
+              {selectedProductIds.length}
+            </div>
+            <div>
+              <div className="font-bold text-sm">
+                {selectedProductIds.length} Barang Tercentang / Dipilih
+              </div>
+              <div className="text-[11px] text-emerald-100 font-medium">
+                Pilih aksi massal yang ingin Anda terapkan pada barang yang dipilih
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-end">
+            <button
+              type="button"
+              onClick={() => setIsBulkCategoryModalOpen(true)}
+              className="px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Ubah Kategori Massal</span>
+            </button>
+
+            <button
+              id="btn-bulk-delete-products"
+              type="button"
+              onClick={handleBulkDelete}
+              className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition-colors cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Hapus {selectedProductIds.length} Barang Tercentang</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedProductIds([])}
+              className="px-2.5 py-1.5 rounded-xl bg-slate-900/40 hover:bg-slate-900/60 text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Batal</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Stock Alerts Notice */}
       {(lowStockCount > 0 || outOfStockCount > 0) && (
@@ -381,7 +495,21 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 dark:bg-slate-950/70 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider font-bold font-mono">
               <tr>
-                <th className="px-4 py-3.5">No</th>
+                <th className="px-3 py-3.5 text-center w-10">
+                  <button
+                    type="button"
+                    onClick={toggleSelectAll}
+                    title={isAllSelected ? 'Batalkan Semua Pilihan' : 'Pilih / Centang Semua Barang'}
+                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                  >
+                    {isAllSelected ? (
+                      <CheckSquare className="w-4 h-4 text-emerald-500" />
+                    ) : (
+                      <Square className="w-4 h-4 text-slate-400" />
+                    )}
+                  </button>
+                </th>
+                <th className="px-3 py-3.5">No</th>
                 <th className="px-4 py-3.5">Barcode</th>
                 <th className="px-4 py-3.5 font-sans">Nama Produk</th>
                 <th className="px-4 py-3.5 font-sans">Kategori</th>
@@ -395,7 +523,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={10} className="px-4 py-8 text-center text-slate-400">
                     Tidak ada barang yang cocok dengan filter pencarian.
                   </td>
                 </tr>
@@ -404,13 +532,32 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                   const margin = product.sellPrice - product.buyPrice;
                   const isLow = product.stock <= product.minStock && product.stock > 0;
                   const isOut = product.stock <= 0;
+                  const isChecked = selectedProductIds.includes(product.id);
 
                   return (
                     <tr
                       key={product.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                      className={`transition-colors ${
+                        isChecked
+                          ? 'bg-emerald-500/10 dark:bg-emerald-500/15'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                      }`}
                     >
-                      <td className="px-4 py-3 text-slate-400 font-mono">{idx + 1}</td>
+                      <td className="px-3 py-3 text-center">
+                        <button
+                          type="button"
+                          onClick={() => toggleSelectProduct(product.id)}
+                          title="Centang barang ini"
+                          className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                        >
+                          {isChecked ? (
+                            <CheckSquare className="w-4 h-4 text-emerald-500" />
+                          ) : (
+                            <Square className="w-4 h-4 text-slate-400" />
+                          )}
+                        </button>
+                      </td>
+                      <td className="px-3 py-3 text-slate-400 font-mono">{idx + 1}</td>
                       <td className="px-4 py-3 font-mono text-slate-500 dark:text-slate-400">{product.barcode}</td>
                       <td className="px-4 py-3 font-bold text-slate-800 dark:text-slate-100">
                         {product.name}
@@ -852,6 +999,67 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Change Category Modal */}
+      {isBulkCategoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div
+            className={`w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border ${
+              darkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
+            }`}
+          >
+            <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <Layers className="w-5 h-5 text-emerald-500" />
+                <h3 className="font-bold text-sm">Ubah Kategori Massal ({selectedProductIds.length} Barang)</h3>
+              </div>
+              <button onClick={() => setIsBulkCategoryModalOpen(false)} className="p-1 rounded-lg text-slate-400 hover:text-slate-200 cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-xs text-slate-500">
+                Pilih kategori baru untuk {selectedProductIds.length} barang yang sedang Anda centang:
+              </p>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase font-mono mb-1.5">
+                  Kategori Tujuan
+                </label>
+                <select
+                  value={bulkCategoryTarget}
+                  onChange={(e) => setBulkCategoryTarget(e.target.value as ProductCategory)}
+                  className={`w-full px-3 py-2.5 rounded-xl border text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                    darkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-800'
+                  }`}
+                >
+                  {ALL_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsBulkCategoryModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBulkChangeCategory}
+                  className="px-5 py-2 rounded-xl text-xs font-black bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 hover:bg-emerald-500 dark:hover:bg-emerald-400 cursor-pointer"
+                >
+                  Terapkan Perubahan
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

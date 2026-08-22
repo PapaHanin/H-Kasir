@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   BookOpen,
   Plus,
@@ -10,6 +10,9 @@ import {
   Share2,
   Calendar,
   X,
+  CheckSquare,
+  Square,
+  Send,
 } from 'lucide-react';
 import { CustomerDebt, StoreSettings, CashierUser } from '../types';
 import { formatRupiah, formatDateIndo, exportDebtsToExcel } from '../services/export';
@@ -36,6 +39,7 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
   const [selectedDebt, setSelectedDebt] = useState<CustomerDebt | null>(null);
+  const [selectedDebtIds, setSelectedDebtIds] = useState<string[]>([]);
 
   // New Debt Form
   const [formData, setFormData] = useState({
@@ -51,17 +55,64 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
   const [payAmount, setPayAmount] = useState<number>(0);
   const [payNotes, setPayNotes] = useState<string>('Bayar cicilan kasbon');
 
-  const filteredDebts = debts.filter((d) => {
-    const q = searchQuery.toLowerCase().trim();
-    return (
-      !q ||
-      d.customerName.toLowerCase().includes(q) ||
-      (d.phone && d.phone.includes(q)) ||
-      (d.address && d.address.toLowerCase().includes(q))
-    );
-  });
+  const filteredDebts = useMemo(() => {
+    return debts.filter((d) => {
+      const q = searchQuery.toLowerCase().trim();
+      return (
+        !q ||
+        d.customerName.toLowerCase().includes(q) ||
+        (d.phone && d.phone.includes(q)) ||
+        (d.address && d.address.toLowerCase().includes(q))
+      );
+    });
+  }, [debts, searchQuery]);
 
   const totalOutstandingDebt = debts.reduce((sum, d) => sum + d.totalDebt, 0);
+
+  // Checkbox helpers for Debts
+  const isAllDebtsSelected = useMemo(() => {
+    if (filteredDebts.length === 0) return false;
+    return filteredDebts.every((d) => selectedDebtIds.includes(d.id));
+  }, [filteredDebts, selectedDebtIds]);
+
+  const toggleSelectAllDebts = () => {
+    if (isAllDebtsSelected) {
+      setSelectedDebtIds([]);
+    } else {
+      setSelectedDebtIds(filteredDebts.map((d) => d.id));
+    }
+  };
+
+  const toggleSelectDebt = (debtId: string) => {
+    setSelectedDebtIds((prev) =>
+      prev.includes(debtId) ? prev.filter((id) => id !== debtId) : [...prev, debtId]
+    );
+  };
+
+  // Bulk Settle All Checked Debts
+  const handleBulkSettleDebts = () => {
+    if (selectedDebtIds.length === 0) return;
+    const unpaidSelected = debts.filter((d) => selectedDebtIds.includes(d.id) && d.totalDebt > 0);
+    if (unpaidSelected.length === 0) {
+      alert('Semua pelanggan yang dipilih sudah lunas.');
+      return;
+    }
+
+    const totalToSettle = unpaidSelected.reduce((sum, d) => sum + d.totalDebt, 0);
+    if (
+      confirm(
+        `Konfirmasi pelunasan massal untuk ${unpaidSelected.length} pelanggan?\nTotal pelunasan: ${formatRupiah(
+          totalToSettle
+        )}`
+      )
+    ) {
+      unpaidSelected.forEach((d) => {
+        onRecordPayment(d.id, d.totalDebt, 'Pelunasan Kasbon Sekaligus (Massal)');
+      });
+      setSelectedDebtIds([]);
+      sound.playSuccess();
+    }
+  };
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,16 +255,38 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative w-full sm:w-80">
-        <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Cari nama pelanggan / no. HP..."
-          className="w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs sm:text-sm bg-white dark:bg-slate-900/90 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800 dark:text-slate-100"
-        />
+      {/* Search Bar & Bulk Settle Action Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="relative w-full sm:w-80">
+          <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Cari nama pelanggan / no. HP..."
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs sm:text-sm bg-white dark:bg-slate-900/90 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800 dark:text-slate-100"
+          />
+        </div>
+
+        {selectedDebtIds.length > 0 && (
+          <div className="flex items-center gap-2 animate-in fade-in duration-200">
+            <button
+              type="button"
+              onClick={handleBulkSettleDebts}
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md transition-colors cursor-pointer"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Lunaskan {selectedDebtIds.length} Kasbon Tercentang Sekaligus</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedDebtIds([])}
+              className="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-300 transition-colors cursor-pointer"
+            >
+              Batal ({selectedDebtIds.length})
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Debts Table */}
@@ -226,6 +299,20 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 dark:bg-slate-950/70 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider font-bold font-mono">
               <tr>
+                <th className="px-3 py-3.5 text-center w-10">
+                  <button
+                    type="button"
+                    onClick={toggleSelectAllDebts}
+                    title={isAllDebtsSelected ? 'Batalkan Semua Pilihan' : 'Centang Semua Pelanggan'}
+                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                  >
+                    {isAllDebtsSelected ? (
+                      <CheckSquare className="w-4 h-4 text-amber-500" />
+                    ) : (
+                      <Square className="w-4 h-4 text-slate-400" />
+                    )}
+                  </button>
+                </th>
                 <th className="px-4 py-3.5 font-sans">Nama Pelanggan</th>
                 <th className="px-4 py-3.5">No. HP / WA</th>
                 <th className="px-4 py-3.5 font-sans">Alamat / RT</th>
@@ -238,18 +325,37 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
               {filteredDebts.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
                     Belum ada data catatan kasbon pelanggan.
                   </td>
                 </tr>
               ) : (
                 filteredDebts.map((debt) => {
                   const isPaidOff = debt.totalDebt <= 0;
+                  const isChecked = selectedDebtIds.includes(debt.id);
                   return (
                     <tr
                       key={debt.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                      className={`transition-colors ${
+                        isChecked
+                          ? 'bg-amber-500/10 dark:bg-amber-500/15'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                      }`}
                     >
+                      <td className="px-3 py-3 text-center">
+                        <button
+                          type="button"
+                          onClick={() => toggleSelectDebt(debt.id)}
+                          title="Centang pelanggan ini"
+                          className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                        >
+                          {isChecked ? (
+                            <CheckSquare className="w-4 h-4 text-amber-500" />
+                          ) : (
+                            <Square className="w-4 h-4 text-slate-400" />
+                          )}
+                        </button>
+                      </td>
                       <td className="px-4 py-3 font-bold text-slate-800 dark:text-slate-100">
                         {debt.customerName}
                       </td>

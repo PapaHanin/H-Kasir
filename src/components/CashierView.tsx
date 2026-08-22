@@ -11,6 +11,9 @@ import {
   ShoppingBag,
   ArrowRight,
   Package,
+  CheckSquare,
+  Square,
+  Percent,
 } from 'lucide-react';
 import {
   Product,
@@ -69,6 +72,34 @@ export const CashierView: React.FC<CashierViewProps> = ({
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [cartDiscount, setCartDiscount] = useState<number>(0);
   const [showDiscountInput, setShowDiscountInput] = useState<boolean>(false);
+  const [selectedCartIds, setSelectedCartIds] = useState<string[]>([]);
+
+  // Cart Checkbox Selection Helpers
+  const isAllCartSelected = useMemo(() => {
+    if (cart.length === 0) return false;
+    return cart.every((item) => selectedCartIds.includes(item.product.id));
+  }, [cart, selectedCartIds]);
+
+  const toggleSelectAllCart = () => {
+    if (isAllCartSelected) {
+      setSelectedCartIds([]);
+    } else {
+      setSelectedCartIds(cart.map((item) => item.product.id));
+    }
+  };
+
+  const toggleSelectCartItem = (productId: string) => {
+    setSelectedCartIds((prev) =>
+      prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
+    );
+  };
+
+  const handleBulkRemoveFromCart = () => {
+    if (selectedCartIds.length === 0) return;
+    sound.playBeep(400, 0.04);
+    setCart((prev) => prev.filter((item) => !selectedCartIds.includes(item.product.id)));
+    setSelectedCartIds([]);
+  };
 
   // Filter products by category and query (name / barcode / category)
   const filteredProducts = useMemo(() => {
@@ -428,6 +459,20 @@ export const CashierView: React.FC<CashierViewProps> = ({
             {/* Cart Header */}
             <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50 rounded-t-2xl">
               <div className="flex items-center gap-2.5">
+                {cart.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={toggleSelectAllCart}
+                    title={isAllCartSelected ? 'Batalkan Semua Pilihan Keranjang' : 'Centang Semua Item Keranjang'}
+                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                  >
+                    {isAllCartSelected ? (
+                      <CheckSquare className="w-4 h-4 text-emerald-500" />
+                    ) : (
+                      <Square className="w-4 h-4 text-slate-400" />
+                    )}
+                  </button>
+                )}
                 <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                   <ShoppingBag className="w-4 h-4" />
                 </div>
@@ -440,6 +485,18 @@ export const CashierView: React.FC<CashierViewProps> = ({
               </div>
 
               <div className="flex items-center gap-1">
+                {selectedCartIds.length > 0 && (
+                  <button
+                    id="btn-bulk-remove-cart"
+                    type="button"
+                    onClick={handleBulkRemoveFromCart}
+                    title={`Hapus ${selectedCartIds.length} item yang dicentang`}
+                    className="px-2.5 py-1.5 rounded-lg bg-rose-500/15 text-rose-600 hover:bg-rose-500/25 dark:text-rose-400 text-xs font-bold flex items-center gap-1 border border-rose-500/30 transition-all cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Hapus ({selectedCartIds.length})</span>
+                  </button>
+                )}
                 {cart.length > 0 && (
                   <>
                     <button
@@ -457,7 +514,7 @@ export const CashierView: React.FC<CashierViewProps> = ({
                       type="button"
                       onClick={handleClearCart}
                       title="Kosongkan Keranjang"
-                      className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all"
+                      className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -478,18 +535,38 @@ export const CashierView: React.FC<CashierViewProps> = ({
                 </div>
               ) : (
                 cart.map((item) => {
+                  const isChecked = selectedCartIds.includes(item.product.id);
                   return (
-                    <div key={item.product.id} className="pt-2.5 first:pt-0">
+                    <div
+                      key={item.product.id}
+                      className={`pt-2.5 first:pt-0 p-1.5 rounded-xl transition-colors ${
+                        isChecked ? 'bg-emerald-500/10 dark:bg-emerald-500/15' : ''
+                      }`}
+                    >
                       <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-xs truncate">{item.product.name}</h4>
-                          <div className="text-[11px] text-slate-500 font-mono mt-0.5 flex items-center gap-1.5">
-                            <span>
-                              {formatRupiah(item.product.sellPrice)} / {item.product.unit}
-                            </span>
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <button
+                            type="button"
+                            onClick={() => toggleSelectCartItem(item.product.id)}
+                            title="Centang item ini"
+                            className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer shrink-0"
+                          >
+                            {isChecked ? (
+                              <CheckSquare className="w-4 h-4 text-emerald-500" />
+                            ) : (
+                              <Square className="w-4 h-4 text-slate-400" />
+                            )}
+                          </button>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="font-bold text-xs truncate">{item.product.name}</h4>
+                            <div className="text-[11px] text-slate-500 font-mono mt-0.5 flex items-center gap-1.5">
+                              <span>
+                                {formatRupiah(item.product.sellPrice)} / {item.product.unit}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right shrink-0">
                           <div className="font-black text-xs text-emerald-600 dark:text-emerald-400 font-numeric">
                             {formatRupiah(item.subtotal)}
                           </div>
