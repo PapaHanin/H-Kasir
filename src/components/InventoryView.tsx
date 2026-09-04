@@ -17,10 +17,12 @@ import {
   Square,
   Layers,
   CheckCircle2,
+  Scan,
 } from 'lucide-react';
 import { Product, ProductCategory, StockLog, StoreSettings } from '../types';
 import { formatRupiah, exportStockToExcel, exportStockPDF } from '../services/export';
 import { sound } from '../services/sound';
+import { BarcodeScannerModal } from './BarcodeScannerModal';
 
 const ALL_CATEGORIES: ProductCategory[] = [
   'Sembako & Beras',
@@ -60,6 +62,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [stockFilter, setStockFilter] = useState<'ALL' | 'LOW' | 'OUT'>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBarcodeScannerOpen, setIsBarcodeScannerOpen] = useState(false);
   const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
@@ -276,12 +279,12 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   };
 
   return (
-    <div id="inventory-management-container" className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-5 space-y-5">
+    <div id="inventory-management-container" className="max-w-7xl mx-auto space-y-5">
       {/* Header & Action Buttons */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-black tracking-tight flex items-center gap-2 text-slate-900 dark:text-slate-100">
-            <Package className="w-6 h-6 text-emerald-500" />
+            <Package className="w-6 h-6 text-purple-600 dark:text-pink-400" />
             <span>Manajemen Stok & Inventaris Toko</span>
           </h2>
           <p className="text-xs text-slate-500 font-mono">
@@ -775,13 +778,23 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
             <form onSubmit={handleSaveSubmit} className="p-6 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 font-mono">Kode Barcode / SKU:</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 font-mono">Kode Barcode / SKU:</label>
+                    <button
+                      type="button"
+                      onClick={() => setIsBarcodeScannerOpen(true)}
+                      className="text-[11px] font-bold text-purple-600 dark:text-pink-400 hover:text-pink-500 flex items-center gap-1 cursor-pointer bg-purple-500/10 hover:bg-purple-500/20 px-2 py-0.5 rounded-lg border border-purple-500/20 transition-all active:scale-95"
+                    >
+                      <Scan className="w-3 h-3" />
+                      <span>Scan Kemasan</span>
+                    </button>
+                  </div>
                   <input
                     id="input-form-barcode"
                     type="text"
                     value={formData.barcode}
                     onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
-                    placeholder="899..."
+                    placeholder="Scan kemasan atau ketik 899..."
                     className="w-full px-3 py-2 rounded-xl border text-xs font-mono bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     required
                   />
@@ -1114,6 +1127,20 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Barcode Scanner Modal for Packaging */}
+      <BarcodeScannerModal
+        isOpen={isBarcodeScannerOpen}
+        onClose={() => setIsBarcodeScannerOpen(false)}
+        products={products}
+        onScanSuccess={(scannedBarcode) => {
+          setFormData((prev) => ({ ...prev, barcode: scannedBarcode }));
+          sound.playSuccess();
+          setIsBarcodeScannerOpen(false);
+        }}
+        mode="INPUT"
+        darkMode={darkMode}
+      />
     </div>
   );
 };

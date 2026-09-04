@@ -14,6 +14,52 @@ const STORAGE_KEY = 'kelontong_pos_vault_v1';
 const MASTER_KEY_STORAGE = 'kelontong_vault_secret_key';
 const DEFAULT_KEY = 'KELONTONG_AES256_OFFLINE_SECURE_VAULT_KEY_2026';
 
+const IDB_NAME = 'kelontong_pos_idb';
+const IDB_STORE = 'vault';
+const IDB_KEY = 'primary_data';
+
+function openIDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    if (typeof indexedDB === 'undefined') {
+      reject(new Error('IndexedDB not supported'));
+      return;
+    }
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(IDB_STORE)) {
+        db.createObjectStore(IDB_STORE);
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function saveToIDB(dataStr: string): Promise<void> {
+  try {
+    const db = await openIDB();
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put(dataStr, IDB_KEY);
+  } catch (err) {
+    console.warn('Could not save to IndexedDB mirror:', err);
+  }
+}
+
+async function loadFromIDB(): Promise<string | null> {
+  try {
+    const db = await openIDB();
+    const tx = db.transaction(IDB_STORE, 'readonly');
+    const req = tx.objectStore(IDB_STORE).get(IDB_KEY);
+    return new Promise((resolve, reject) => {
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  } catch {
+    return null;
+  }
+}
+
 export interface DatabaseSchema {
   version: number;
   products: Product[];
@@ -42,6 +88,7 @@ const INITIAL_USERS: CashierUser[] = [
 
 const INITIAL_SETTINGS: StoreSettings = {
   storeName: 'Toko Kelontong Berkah Jaya',
+  ownerName: 'Pemilik / Kasir Utama',
   tagline: 'Sembako Lengkap, Murah & Terpercaya',
   address: 'Jl. Melati No. 18, RT 03 / RW 05',
   phone: '0812-3456-7890',
@@ -51,6 +98,8 @@ const INITIAL_SETTINGS: StoreSettings = {
   paperSize: '58mm',
   qrisMerchantName: 'TOKO KELONTONG BERKAH',
   qrisNmid: 'ID1020038920192',
+  qrisCity: 'JAKARTA',
+  qrisMode: 'DYNAMIC_NMID',
   autoPrintReceipt: true,
   playAudioFeedback: true,
   encryptionEnabled: true,
@@ -1019,22 +1068,31 @@ class LocalEncryptedDatabase {
       }
 
       const data: DatabaseSchema = JSON.parse(decryptedStr);
-      // Migration guarantee & clean up demo users / agricultural data
-      if (data.settings && data.settings.storeName && data.settings.storeName.toLowerCase().includes('sawit')) {
+      // Migration guarantee & clean up demo users / agricultural data (Toko Kelontong pure)
+      if (
+        data.settings &&
+        data.settings.storeName &&
+        (data.settings.storeName.toLowerCase().includes('sawit') ||
+          data.settings.storeName.toLowerCase().includes('hasil bumi') ||
+          data.settings.storeName.toLowerCase().includes('ram '))
+      ) {
         data.settings = INITIAL_SETTINGS;
       }
       if (!data.products || data.products.length === 0) {
         data.products = INITIAL_PRODUCTS;
       } else {
-        // Strip legacy sawit products if present
+        // Strip legacy sawit or hasil bumi products if present
         data.products = data.products.filter(
           (p) =>
             p.category !== 'Hasil Bumi & Sawit' &&
             p.category !== 'Pupuk & Saprotan' &&
             p.category !== 'Alat Panen & Perlengkapan' &&
+            !p.category.toLowerCase().includes('sawit') &&
+            !p.category.toLowerCase().includes('hasil bumi') &&
             !p.name.toLowerCase().includes('sawit') &&
             !p.name.toLowerCase().includes('egrek') &&
-            !p.name.toLowerCase().includes('dodos')
+            !p.name.toLowerCase().includes('dodos') &&
+            !p.name.toLowerCase().includes('tbs')
         );
         if (data.products.length === 0) {
           data.products = INITIAL_PRODUCTS;
@@ -1068,6 +1126,7 @@ class LocalEncryptedDatabase {
       const key = this.getVaultKey();
       const encrypted = this.encrypt(jsonStr, key);
       localStorage.setItem(STORAGE_KEY, encrypted);
+      saveToIDB(jsonStr); // Mirror into browser IndexedDB
       this.notifyListeners();
     } catch {
       // LocalStorage full or private browsing exception
@@ -1097,6 +1156,77 @@ class LocalEncryptedDatabase {
       heldCarts: [],
       lastBackupDate: new Date().toISOString(),
     };
+  }
+
+  // Check if browser has granted persistent storage permission
+  public async isStoragePersisted(): Promise<boolean> {
+    if (typeof navigator !== 'undefined' && navigator.storage && navigator.storage.persisted) {
+      try {
+        return await navigator.storage.persisted();
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  // Request persistent storage so browser never purges app data
+  public async requestPersistentStorage(): Promise<boolean> {
+    if (typeof navigator !== 'undefined' && navigator.storage && navigator.storage.persist) {
+      try {
+        return await navigator.storage.persist();
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  // Asynchronous recovery check from IndexedDB if LocalStorage was cleared
+  public async checkAndRecoverFromIndexedDB(): Promise<boolean> {
+    try {
+      const idbData = await loadFromIDB();
+      if (!idbData) return false;
+      const parsed: DatabaseSchema = JSON.parse(idbData);
+      if (parsed.products && parsed.products.length > 0) {
+        this.save(parsed);
+        return true;
+      }
+    } catch {
+      // Ignore
+    }
+    return false;
+  }
+
+  // Export full human-readable JSON backup
+  public exportJsonBackup(): string {
+    const data = this.load();
+    const backupObj = {
+      app: 'KasirKelontong POS Modern',
+      version: data.version || 1,
+      exportedAt: new Date().toISOString(),
+      storeName: data.settings?.storeName || 'Toko Kelontong',
+      summary: {
+        totalProducts: data.products?.length || 0,
+        totalTransactions: data.transactions?.length || 0,
+        totalDebts: data.debts?.length || 0,
+      },
+      data,
+    };
+    return JSON.stringify(backupObj, null, 2);
+  }
+
+  // Restore from JSON backup
+  public restoreJsonBackup(jsonString: string): boolean {
+    try {
+      const parsed = JSON.parse(jsonString);
+      const schema: DatabaseSchema = parsed.data || parsed.schema || parsed;
+      if (!schema.products || !schema.users) return false;
+      this.save(schema);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   // Raw encrypted backup export (with AES-256)

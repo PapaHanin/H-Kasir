@@ -166,7 +166,7 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
   };
 
   return (
-    <div id="debts-view-container" className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-5 space-y-5">
+    <div id="debts-view-container" className="max-w-7xl mx-auto space-y-5">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>

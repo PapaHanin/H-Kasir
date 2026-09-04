@@ -100,12 +100,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         }`}
       >
         {/* Header */}
-        <div className="bg-emerald-600 dark:bg-emerald-500 px-6 py-5 text-white dark:text-slate-950 text-center relative">
-          <div className="w-12 h-12 rounded-xl bg-white/10 dark:bg-slate-950/10 flex items-center justify-center mx-auto mb-2 backdrop-blur">
-            <Lock className="w-6 h-6" />
+        <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 px-6 py-5 text-white text-center relative shadow-md">
+          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mx-auto mb-2 backdrop-blur">
+            <Lock className="w-6 h-6 text-white" />
           </div>
-          <h2 className="text-xl font-black tracking-tight">Kunci Layar Kasir / RAM</h2>
-          <p className="text-xs opacity-90 mt-1 flex items-center justify-center gap-1.5 font-mono">
+          <h2 className="text-xl font-black tracking-tight">Kunci Layar Kasir Kelontong</h2>
+          <p className="text-xs text-purple-100 mt-1 flex items-center justify-center gap-1.5 font-mono">
             <ShieldCheck className="w-3.5 h-3.5" />
             Database Lokal Terenkripsi AES-256
           </p>
@@ -118,13 +118,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             <form onSubmit={handleCreateNewUser} className="space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
                 <div className="font-extrabold text-sm flex items-center gap-2">
-                  <UserPlus className="w-4 h-4 text-emerald-500" />
+                  <UserPlus className="w-4 h-4 text-purple-500" />
                   <span>Daftarkan Kasir / Petugas Baru</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowAddForm(false)}
-                  className="p-1 text-slate-400 hover:text-slate-200"
+                  className="p-1 text-slate-400 hover:text-slate-200 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -132,14 +132,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
               <div>
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
-                  Nama Petugas Kasir / Timbangan:
+                  Nama Petugas Kasir:
                 </label>
                 <input
                   type="text"
                   value={newUserName}
                   onChange={(e) => setNewUserName(e.target.value)}
-                  placeholder="Contoh: Kasir Timbang 1 / Budi"
-                  className="w-full px-3 py-2.5 rounded-xl border text-sm font-bold bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="Contoh: Kasir 1 / Budi"
+                  className="w-full px-3 py-2.5 rounded-xl border text-sm font-bold bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
               </div>
@@ -154,7 +154,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   value={newUserPin}
                   onChange={(e) => setNewUserPin(e.target.value.replace(/\D/g, ''))}
                   placeholder="Masukkan 4 digit PIN..."
-                  className="w-full px-3 py-2.5 rounded-xl border text-sm font-mono tracking-widest bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2.5 rounded-xl border text-sm font-mono tracking-widest bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
               </div>
@@ -166,10 +166,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 <select
                   value={newUserRole}
                   onChange={(e) => setNewUserRole(e.target.value as 'OWNER' | 'KASIR')}
-                  className="w-full px-3 py-2.5 rounded-xl border text-xs font-bold bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2.5 rounded-xl border text-xs font-bold bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
-                  <option value="KASIR">Petugas Kasir / Timbang</option>
-                  <option value="OWNER">Pemilik Toko / Gudang (Akses Penuh)</option>
+                  <option value="KASIR">Petugas Kasir</option>
+                  <option value="OWNER">Pemilik Toko (Akses Penuh)</option>
                 </select>
               </div>
 
@@ -177,13 +177,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowAddForm(false)}
-                  className="w-1/2 py-2.5 rounded-xl border border-slate-300 dark:border-slate-800 text-xs font-bold text-slate-400 hover:text-slate-200"
+                  className="w-1/2 py-2.5 rounded-xl border border-slate-300 dark:border-slate-800 text-xs font-bold text-slate-400 hover:text-slate-200 cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="w-1/2 py-2.5 bg-emerald-600 dark:bg-emerald-500 hover:bg-emerald-500 text-white dark:text-slate-950 text-xs font-black rounded-xl shadow-md"
+                  className="w-1/2 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xs font-black rounded-xl shadow-md cursor-pointer"
                 >
                   Simpan Kasir
                 </button>
@@ -201,7 +201,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowAddForm(true)}
-                      className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 font-mono"
+                      className="text-xs font-bold text-purple-600 dark:text-pink-400 hover:underline flex items-center gap-1 font-mono cursor-pointer"
                     >
                       <UserPlus className="w-3.5 h-3.5" />
                       <span>+ Tambah Kasir</span>
@@ -222,16 +222,16 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                           setPin('');
                           setErrorMsg('');
                         }}
-                        className={`flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all ${
+                        className={`flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all cursor-pointer ${
                           isSelected
-                            ? 'border-emerald-500 bg-emerald-500/10 dark:border-emerald-500 font-bold shadow-2xs'
+                            ? 'border-purple-500 bg-purple-500/10 dark:border-purple-400 font-bold shadow-2xs'
                             : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50 dark:bg-slate-950'
                         }`}
                       >
                         <div
                           className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold font-mono ${
                             isSelected
-                              ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950'
+                              ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
                               : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                           }`}
                         >
@@ -262,7 +262,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                       key={idx}
                       className={`w-4 h-4 rounded-full border-2 transition-all ${
                         pin.length > idx
-                          ? 'bg-emerald-500 border-emerald-500 scale-110 shadow-sm shadow-emerald-500/40'
+                          ? 'bg-purple-500 border-purple-500 scale-110 shadow-sm shadow-purple-500/40'
                           : 'border-slate-300 dark:border-slate-700 bg-transparent'
                       }`}
                     />
@@ -284,7 +284,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     type="button"
                     id={`btn-pin-${d}`}
                     onClick={() => handleDigit(d)}
-                    className={`py-3.5 text-lg font-bold font-numeric rounded-xl border transition-all active:scale-95 ${
+                    className={`py-3.5 text-lg font-bold font-numeric rounded-xl border transition-all active:scale-95 cursor-pointer ${
                       darkMode
                         ? 'bg-slate-800/80 border-slate-700 hover:bg-slate-700 text-white'
                         : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-800'
@@ -297,7 +297,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   type="button"
                   id="btn-pin-clear"
                   onClick={handleClear}
-                  className={`py-3.5 text-xs font-bold font-mono rounded-xl border transition-all active:scale-95 ${
+                  className={`py-3.5 text-xs font-bold font-mono rounded-xl border transition-all active:scale-95 cursor-pointer ${
                     darkMode
                       ? 'bg-slate-800/50 border-slate-800 text-slate-400 hover:bg-slate-800'
                       : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
@@ -309,7 +309,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   type="button"
                   id="btn-pin-0"
                   onClick={() => handleDigit('0')}
-                  className={`py-3.5 text-lg font-bold font-numeric rounded-xl border transition-all active:scale-95 ${
+                  className={`py-3.5 text-lg font-bold font-numeric rounded-xl border transition-all active:scale-95 cursor-pointer ${
                     darkMode
                       ? 'bg-slate-800/80 border-slate-700 hover:bg-slate-700 text-white'
                       : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-800'
@@ -321,7 +321,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   type="button"
                   id="btn-pin-backspace"
                   onClick={handleDelete}
-                  className={`py-3.5 flex items-center justify-center rounded-xl border transition-all active:scale-95 ${
+                  className={`py-3.5 flex items-center justify-center rounded-xl border transition-all active:scale-95 cursor-pointer ${
                     darkMode
                       ? 'bg-slate-800/50 border-slate-800 text-slate-400 hover:bg-slate-800'
                       : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
@@ -337,7 +337,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 id="btn-login-submit"
                 onClick={handleManualSubmit}
                 disabled={!pin}
-                className="w-full py-3.5 bg-emerald-600 dark:bg-emerald-500 hover:bg-emerald-500 dark:hover:bg-emerald-400 disabled:opacity-40 text-white dark:text-slate-950 font-black rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all active:scale-98 tracking-wide"
+                className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-40 text-white font-black rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 transition-all active:scale-98 tracking-wide cursor-pointer"
               >
                 <UserCheck className="w-4 h-4" />
                 <span>Masuk Kasir</span>

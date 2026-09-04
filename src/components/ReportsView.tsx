@@ -144,13 +144,15 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       : 'Semua Periode';
 
   return (
-    <div id="reports-view-container" className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-5 space-y-5">
+    <div id="reports-view-container" className="max-w-7xl mx-auto space-y-5">
       {/* Header & Export Actions */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-black tracking-tight flex items-center gap-2 text-slate-900 dark:text-slate-100">
-            <BarChart3 className="w-6 h-6 text-emerald-500" />
-            <span>Laporan Penjualan & Keuangan Toko Kelontong</span>
+            <BarChart3 className="w-6 h-6 text-purple-500" />
+            <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent dark:from-purple-400 dark:to-pink-400">
+              Laporan Penjualan & Keuangan Toko Kelontong
+            </span>
           </h2>
           <p className="text-xs text-slate-500 font-mono">
             Analisis omzet, laba kotor & bersih, serta riwayat transaksi kasir
@@ -163,9 +165,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
             <button
               onClick={() => setPeriodFilter('TODAY')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 periodFilter === 'TODAY'
-                  ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-2xs'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-2xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
@@ -173,9 +175,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             </button>
             <button
               onClick={() => setPeriodFilter('7DAYS')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 periodFilter === '7DAYS'
-                  ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-2xs'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-2xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
@@ -183,9 +185,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             </button>
             <button
               onClick={() => setPeriodFilter('30DAYS')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 periodFilter === '30DAYS'
-                  ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-2xs'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-2xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
@@ -193,9 +195,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             </button>
             <button
               onClick={() => setPeriodFilter('ALL')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 periodFilter === 'ALL'
-                  ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-2xs'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-2xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
@@ -207,9 +209,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             id="btn-export-sales-excel"
             type="button"
             onClick={() => exportSalesToExcel(filteredTransactions, settings)}
-            className="px-3 py-2 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30 flex items-center gap-1.5 shadow-2xs transition-colors"
+            className="px-3 py-2 rounded-xl text-xs font-bold bg-purple-500/10 text-purple-600 dark:text-pink-400 hover:bg-purple-500/20 border border-purple-500/30 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
           >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
+            <FileSpreadsheet className="w-4 h-4 text-purple-500" />
             <span>Ekspor Excel</span>
           </button>
 
@@ -217,7 +219,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             id="btn-export-sales-pdf"
             type="button"
             onClick={() => exportSalesReportPDF(filteredTransactions, settings, periodTitle)}
-            className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-900 dark:text-slate-300 border border-slate-300 dark:border-slate-800 flex items-center gap-1.5 shadow-2xs transition-colors"
+            className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-900 dark:text-slate-300 border border-slate-300 dark:border-slate-800 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
           >
             <FileText className="w-4 h-4 text-rose-500" />
             <span>Ekspor PDF</span>
@@ -235,11 +237,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         >
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold mb-1 font-mono">
             <span>TOTAL OMZET</span>
-            <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500">
+            <div className="p-1.5 rounded-lg bg-gradient-to-r from-purple-500/15 to-pink-500/15 text-pink-500">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-black font-numeric text-emerald-600 dark:text-emerald-400">
+          <div className="text-xl sm:text-2xl font-black font-numeric bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
             {formatRupiah(totalOmzet)}
           </div>
           <p className="text-[11px] text-slate-400 mt-1 font-mono">
@@ -255,11 +257,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         >
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold mb-1 font-mono">
             <span>LABA BERSIH</span>
-            <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500">
+            <div className="p-1.5 rounded-lg bg-pink-500/10 text-pink-500">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-black font-numeric text-blue-600 dark:text-blue-400">
+          <div className="text-xl sm:text-2xl font-black font-numeric text-pink-600 dark:text-pink-400">
             {formatRupiah(totalProfit)}
           </div>
           <p className="text-[11px] text-slate-400 mt-1 font-mono">
@@ -338,7 +340,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     <span className="font-bold truncate max-w-[200px] sm:max-w-[280px] text-slate-800 dark:text-slate-200">{p.name}</span>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold text-emerald-600 dark:text-emerald-400 font-numeric">
+                    <div className="font-bold text-purple-600 dark:text-pink-400 font-numeric">
                       {p.qty} terjual ({formatRupiah(p.revenue)})
                     </div>
                     <div className="text-[10px] text-slate-400 font-numeric">Laba: +{formatRupiah(p.profit)}</div>
@@ -372,7 +374,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     </div>
                     <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-emerald-500 rounded-full"
+                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
                         style={{ width: `${percent}%` }}
                       />
                     </div>
@@ -407,14 +409,14 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari faktur, kasir..."
-                className="w-full pl-8 pr-3 py-1.5 rounded-lg border text-xs bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800 dark:text-slate-100"
+                className="w-full pl-8 pr-3 py-1.5 rounded-lg border text-xs bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-slate-100"
               />
             </div>
 
             <select
               value={paymentFilter}
               onChange={(e) => setPaymentFilter(e.target.value)}
-              className="px-2.5 py-1.5 rounded-lg border text-xs bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800 dark:text-slate-100"
+              className="px-2.5 py-1.5 rounded-lg border text-xs bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-slate-100"
             >
               <option value="ALL">Semua Bayar</option>
               <option value="TUNAI">Tunai</option>
@@ -470,28 +472,28 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                         {trx.paymentMethod}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right font-numeric font-bold text-emerald-600 dark:text-emerald-400">
+                    <td className="px-4 py-3 text-right font-numeric font-bold text-purple-600 dark:text-pink-400">
                       {formatRupiah(trx.grandTotal)}
                     </td>
-                    <td className="px-4 py-3 text-right font-numeric text-blue-600 dark:text-blue-400 font-semibold">
+                    <td className="px-4 py-3 text-right font-numeric text-pink-600 dark:text-pink-400 font-semibold">
                       +{formatRupiah(trx.totalProfit)}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span
                         className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold text-[10px] border ${
                           trx.status === 'COMPLETED'
-                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                            ? 'bg-purple-500/10 text-purple-600 dark:text-pink-400 border-purple-500/20'
                             : 'bg-rose-500/10 text-rose-500 border-rose-500/20'
                         }`}
                       >
                         {trx.status === 'COMPLETED' ? (
                           <>
-                            <CheckCircle className="w-3 h-3" />
+                            <CheckCircle className="w-3 h-3 text-purple-500 dark:text-pink-400" />
                             <span>Sukses</span>
                           </>
                         ) : (
                           <>
-                            <XCircle className="w-3 h-3" />
+                            <XCircle className="w-3 h-3 text-rose-500" />
                             <span>Batal</span>
                           </>
                         )}
@@ -503,7 +505,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                           type="button"
                           onClick={() => onViewReceipt(trx)}
                           title="Lihat / Cetak Ulang Struk"
-                          className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30 font-bold text-[11px] flex items-center gap-1 transition-colors"
+                          className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-purple-500/15 to-pink-500/15 text-purple-700 dark:text-pink-300 hover:from-purple-500/25 hover:to-pink-500/25 border border-purple-500/30 font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>Struk</span>
@@ -517,7 +519,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                               }
                             }}
                             title="Batalkan Transaksi / Retur"
-                            className="p-1 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors"
+                            className="p-1 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
                           >
                             <RotateCcw className="w-3.5 h-3.5" />
                           </button>

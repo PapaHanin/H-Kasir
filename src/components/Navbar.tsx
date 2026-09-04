@@ -55,28 +55,28 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between h-16">
           {/* Logo & Store Branding */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 font-bold text-lg border border-emerald-400/30">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 via-fuchsia-600 to-pink-600 flex items-center justify-center text-white shadow-md shadow-purple-500/25 font-bold text-lg border border-purple-400/30">
               🛒
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-extrabold text-base sm:text-lg leading-tight tracking-tight text-emerald-600 dark:text-emerald-400">
+                <h1 className="font-extrabold text-base sm:text-lg leading-tight tracking-tight bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent dark:from-purple-400 dark:via-fuchsia-300 dark:to-pink-400">
                   {settings.storeName || 'Kasir Kelontong'}
                 </h1>
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md font-mono">
-                  <ShieldCheck className="w-3 h-3 text-emerald-500" />
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold tracking-wide bg-purple-500/10 text-purple-600 dark:text-pink-400 border border-purple-500/20 px-2 py-0.5 rounded-md font-mono">
+                  <ShieldCheck className="w-3 h-3 text-purple-500" />
                   AES-256
                 </span>
                 <span
                   title="Sinkronisasi Multi-Device Cloud Firestore Aktif"
                   className={`hidden md:inline-flex items-center gap-1.5 text-[11px] font-medium border px-2 py-0.5 rounded-md ${
                     cloudSyncStatus === 'SYNCED'
-                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                      ? 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-pink-300 border-purple-300 dark:border-purple-800'
                       : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-300 dark:border-amber-800'
                   }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <Wifi className="w-3 h-3 text-emerald-500" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
+                  <Wifi className="w-3 h-3 text-purple-500" />
                   <span>Cloud Sync Aktif</span>
                 </span>
               </div>
@@ -93,7 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setActiveTab('cashier')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all relative ${
                 activeTab === 'cashier'
-                  ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-sm'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm shadow-purple-500/20'
                   : darkMode
                   ? 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   : 'text-slate-700 hover:bg-white hover:text-slate-900'
@@ -102,7 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <ShoppingCart className="w-3.5 h-3.5" />
               <span>Kasir (POS)</span>
               {cartItemCount > 0 && (
-                <span className="bg-amber-500 text-slate-950 font-black text-[10px] w-4.5 h-4.5 rounded-md flex items-center justify-center font-mono">
+                <span className="bg-amber-400 text-slate-950 font-black text-[10px] w-4.5 h-4.5 rounded-md flex items-center justify-center font-mono shadow-xs">
                   {cartItemCount}
                 </span>
               )}
@@ -113,7 +113,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setActiveTab('inventory')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 activeTab === 'inventory'
-                  ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-sm'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm shadow-purple-500/20'
                   : darkMode
                   ? 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   : 'text-slate-700 hover:bg-white hover:text-slate-900'
@@ -128,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setActiveTab('reports')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 activeTab === 'reports'
-                  ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-sm'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm shadow-purple-500/20'
                   : darkMode
                   ? 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   : 'text-slate-700 hover:bg-white hover:text-slate-900'
@@ -143,7 +143,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setActiveTab('debts')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 activeTab === 'debts'
-                  ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-sm'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm shadow-purple-500/20'
                   : darkMode
                   ? 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   : 'text-slate-700 hover:bg-white hover:text-slate-900'
@@ -158,7 +158,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setActiveTab('settings')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 activeTab === 'settings'
-                  ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-sm'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm shadow-purple-500/20'
                   : darkMode
                   ? 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   : 'text-slate-700 hover:bg-white hover:text-slate-900'
@@ -178,7 +178,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="Status Shift Kasir"
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                 activeShift
-                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 dark:bg-emerald-950/40'
+                  ? 'bg-purple-500/10 text-purple-600 dark:text-pink-400 border-purple-500/30 dark:bg-purple-950/40'
                   : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 dark:bg-amber-950/40'
               }`}
             >
@@ -216,7 +216,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   id="btn-lock-logout"
                   onClick={onLogout}
-                  className="flex items-center gap-1 p-2 rounded-lg text-rose-500 hover:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-500/20 transition-all"
+                  className="flex items-center gap-1 p-2 rounded-lg text-rose-500 hover:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-500/20 transition-all cursor-pointer"
                   title="Kunci Layar / Ganti Kasir"
                 >
                   <Lock className="w-4 h-4" />
@@ -233,14 +233,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={() => setActiveTab('cashier')}
           className={`flex flex-col items-center py-1 px-2.5 rounded-lg text-[11px] font-semibold relative ${
             activeTab === 'cashier'
-              ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+              ? 'text-purple-600 dark:text-pink-400 font-bold'
               : 'text-slate-500 dark:text-slate-400'
           }`}
         >
           <ShoppingCart className="w-4 h-4 mb-0.5" />
           <span>Kasir</span>
           {cartItemCount > 0 && (
-            <span className="absolute top-0 right-1 bg-amber-500 text-slate-950 text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center font-mono">
+            <span className="absolute top-0 right-1 bg-pink-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center font-mono">
               {cartItemCount}
             </span>
           )}
@@ -249,7 +249,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={() => setActiveTab('inventory')}
           className={`flex flex-col items-center py-1 px-2.5 rounded-lg text-[11px] font-semibold ${
             activeTab === 'inventory'
-              ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+              ? 'text-purple-600 dark:text-pink-400 font-bold'
               : 'text-slate-500 dark:text-slate-400'
           }`}
         >
@@ -260,7 +260,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={() => setActiveTab('reports')}
           className={`flex flex-col items-center py-1 px-2.5 rounded-lg text-[11px] font-semibold ${
             activeTab === 'reports'
-              ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+              ? 'text-purple-600 dark:text-pink-400 font-bold'
               : 'text-slate-500 dark:text-slate-400'
           }`}
         >
@@ -271,7 +271,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={() => setActiveTab('debts')}
           className={`flex flex-col items-center py-1 px-2.5 rounded-lg text-[11px] font-semibold ${
             activeTab === 'debts'
-              ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+              ? 'text-purple-600 dark:text-pink-400 font-bold'
               : 'text-slate-500 dark:text-slate-400'
           }`}
         >
@@ -282,7 +282,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={() => setActiveTab('settings')}
           className={`flex flex-col items-center py-1 px-2.5 rounded-lg text-[11px] font-semibold ${
             activeTab === 'settings'
-              ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+              ? 'text-purple-600 dark:text-pink-400 font-bold'
               : 'text-slate-500 dark:text-slate-400'
           }`}
         >

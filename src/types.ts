@@ -128,6 +128,7 @@ export interface CashierShift {
 
 export interface StoreSettings {
   storeName: string;
+  ownerName?: string;
   tagline: string;
   address: string;
   phone: string;
@@ -137,6 +138,10 @@ export interface StoreSettings {
   paperSize: '58mm' | '80mm';
   qrisMerchantName: string;
   qrisNmid: string;
+  qrisCity?: string;
+  qrisMode?: 'DYNAMIC_NMID' | 'CUSTOM_IMAGE' | 'RAW_STRING';
+  qrisImageUrl?: string;
+  qrisRawString?: string;
   autoPrintReceipt: boolean;
   playAudioFeedback: boolean;
   encryptionEnabled: boolean;

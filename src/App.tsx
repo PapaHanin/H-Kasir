@@ -13,7 +13,9 @@ import {
 import { db } from './services/db';
 import { cloudSync } from './services/cloudSync';
 import { sound } from './services/sound';
-import { Navbar } from './components/Navbar';
+import { Sidebar, TabType } from './components/Sidebar';
+import { TopHeader } from './components/TopHeader';
+import { DashboardView } from './components/DashboardView';
 import { LoginModal } from './components/LoginModal';
 import { CashierView } from './components/CashierView';
 import { InventoryView } from './components/InventoryView';
@@ -22,6 +24,8 @@ import { DebtsView } from './components/DebtsView';
 import { SettingsModal } from './components/SettingsModal';
 import { ShiftModal } from './components/ShiftModal';
 import { ReceiptModal } from './components/ReceiptModal';
+import { PWAInstallPrompt } from './components/PWAInstallPrompt';
+import { GuideView } from './components/GuideView';
 
 export default function App() {
   // Database state
@@ -38,7 +42,8 @@ export default function App() {
 
   // App UI State
   const [currentUser, setCurrentUser] = useState<CashierUser | null>(null);
-  const [activeTab, setActiveTab] = useState<'cashier' | 'inventory' | 'reports' | 'debts' | 'settings'>('cashier');
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -77,30 +82,39 @@ export default function App() {
   // Real-time Cloud Synchronization (Firebase Firestore)
   useEffect(() => {
     // 1. Initial Cloud Pull & Sync
-    cloudSync.pullFullStoreFromCloud().then((cloudData) => {
-      if (cloudData && (cloudData.products || cloudData.transactions)) {
-        isSyncingFromCloudRef.current = true;
-        if (cloudData.products && cloudData.products.length > 0) {
-          setProducts(cloudData.products);
+    cloudSync
+      .pullFullStoreFromCloud()
+      .then((cloudData) => {
+        if (cloudData && (cloudData.products || cloudData.transactions)) {
+          isSyncingFromCloudRef.current = true;
+          if (cloudData.products && cloudData.products.length > 0) {
+            setProducts(cloudData.products);
+          }
+          if (cloudData.transactions && cloudData.transactions.length > 0) {
+            setTransactions(cloudData.transactions);
+          }
+          if (cloudData.debts && cloudData.debts.length > 0) {
+            setDebts(cloudData.debts);
+          }
+          if (cloudData.settings) {
+            setSettings(cloudData.settings);
+          }
+          setCloudSyncStatus('SYNCED');
+          setTimeout(() => {
+            isSyncingFromCloudRef.current = false;
+          }, 500);
+        } else {
+          // First time cloud initialization: push initial local seed
+          const current = db.load();
+          cloudSync.pushFullStoreToCloud(current).then((success) => {
+            setCloudSyncStatus(success ? 'SYNCED' : 'OFFLINE');
+          });
         }
-        if (cloudData.transactions && cloudData.transactions.length > 0) {
-          setTransactions(cloudData.transactions);
-        }
-        if (cloudData.debts && cloudData.debts.length > 0) {
-          setDebts(cloudData.debts);
-        }
-        if (cloudData.settings) {
-          setSettings(cloudData.settings);
-        }
-        setTimeout(() => {
-          isSyncingFromCloudRef.current = false;
-        }, 500);
-      } else {
-        // First time cloud initialization: push initial local seed
-        const current = db.load();
-        cloudSync.pushFullStoreToCloud(current);
-      }
-    });
+      })
+      .catch((err) => {
+        console.debug('Initial cloud sync deferred (running in local offline mode):', err);
+        setCloudSyncStatus('OFFLINE');
+      });
 
     // 2. Real-time Live Listener for Multi-Device Multi-Cashier Sync
     const unsub = cloudSync.subscribeToRealtimeChanges(
@@ -510,7 +524,49 @@ export default function App() {
     sound.playSuccess();
   };
 
-  const handleTabChange = (tab: 'cashier' | 'inventory' | 'reports' | 'debts' | 'settings') => {
+  // Update Owner Profile (Name & PIN)
+  const handleUpdateOwner = (newName: string, newPin?: string) => {
+    // 1. Update currentUser
+    if (currentUser) {
+      const updatedCurrent: CashierUser = {
+        ...currentUser,
+        name: newName,
+        ...(newPin ? { pin: newPin } : {}),
+      };
+      setCurrentUser(updatedCurrent);
+    }
+
+    // 2. Update users in DB
+    const currentUsers = users.length > 0 ? users : db.load().users;
+    const updatedUsers = currentUsers.map((u) => {
+      if (u.role === 'OWNER' || (currentUser && u.id === currentUser.id)) {
+        return {
+          ...u,
+          name: newName,
+          ...(newPin ? { pin: newPin } : {}),
+        };
+      }
+      return u;
+    });
+    setUsers(updatedUsers);
+
+    // 3. Update store settings ownerName
+    const updatedSettings: StoreSettings = {
+      ...settings,
+      ownerName: newName,
+    };
+    setSettings(updatedSettings);
+
+    // 4. Persist to local vault & cloud
+    persistDatabase({
+      users: updatedUsers,
+      settings: updatedSettings,
+    });
+
+    sound.playSuccess();
+  };
+
+  const handleTabChange = (tab: TabType) => {
     sound.playBeep(650, 0.03);
     if (tab === 'settings') {
       setIsSettingsModalOpen(true);
@@ -522,12 +578,12 @@ export default function App() {
   return (
     <div
       id="pos-app-root"
-      className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${
+      className={`h-screen w-screen overflow-hidden flex flex-col md:flex-row font-sans transition-colors duration-200 ${
         darkMode ? 'bg-[#0B1120] text-slate-100' : 'bg-slate-50 text-slate-900'
       }`}
     >
-      {/* 1. Main Navigation Bar */}
-      <Navbar
+      {/* 1. Left Vertical Locked Sidebar (Tidak Bisa Discroll Ke Bawah) */}
+      <Sidebar
         activeTab={activeTab}
         setActiveTab={handleTabChange}
         currentUser={currentUser}
@@ -539,58 +595,100 @@ export default function App() {
         onLogout={() => setCurrentUser(null)}
         cartItemCount={cart.reduce((s, i) => s + i.quantity, 0)}
         cloudSyncStatus={cloudSyncStatus}
+        isMobileDrawerOpen={isMobileDrawerOpen}
+        setIsMobileDrawerOpen={setIsMobileDrawerOpen}
+        onUpdateOwner={handleUpdateOwner}
       />
 
-      {/* 2. Main Tab Screens */}
-      <main className="flex-1 pb-12">
-        {activeTab === 'cashier' && (
-          <CashierView
-            products={products}
-            cart={cart}
-            setCart={setCart}
-            heldCarts={heldCarts}
-            setHeldCarts={setHeldCarts}
-            settings={settings}
-            currentUser={currentUser}
-            onTransactionCompleted={handleTransactionCompleted}
-            darkMode={darkMode}
-          />
-        )}
+      {/* 2. Right Main Scrollable View Area */}
+      <div className="flex-1 h-screen overflow-y-auto flex flex-col bg-slate-50 dark:bg-[#0B1120]">
+        {/* Top Header Bar */}
+        <TopHeader
+          activeTab={activeTab}
+          setActiveTab={handleTabChange}
+          settings={settings}
+          activeShift={activeShift}
+          onOpenShiftModal={() => setIsShiftModalOpen(true)}
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          cloudSyncStatus={cloudSyncStatus}
+          onToggleMobileSidebar={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}
+        />
 
-        {activeTab === 'inventory' && (
-          <InventoryView
-            products={products}
-            onSaveProduct={handleSaveProduct}
-            onDeleteProduct={handleDeleteProduct}
-            onBulkDeleteProducts={handleBulkDeleteProducts}
-            onAdjustStock={handleAdjustStock}
-            stockLogs={stockLogs}
-            settings={settings}
-            darkMode={darkMode}
-          />
-        )}
+        {/* Main Tab Screens */}
+        <main className="flex-1 p-3 sm:p-5 lg:p-6 pb-20">
+          {activeTab === 'dashboard' && (
+            <DashboardView
+              products={products}
+              transactions={transactions}
+              debts={debts}
+              activeShift={activeShift}
+              settings={settings}
+              darkMode={darkMode}
+              onNavigate={handleTabChange}
+              onOpenShiftModal={() => setIsShiftModalOpen(true)}
+              onViewReceipt={(trx) => setSelectedReceipt(trx)}
+            />
+          )}
 
-        {activeTab === 'reports' && (
-          <ReportsView
-            transactions={transactions}
-            onCancelTransaction={handleCancelTransaction}
-            onViewReceipt={(trx) => setSelectedReceipt(trx)}
-            settings={settings}
-            darkMode={darkMode}
-          />
-        )}
+          {activeTab === 'cashier' && (
+            <CashierView
+              products={products}
+              cart={cart}
+              setCart={setCart}
+              heldCarts={heldCarts}
+              setHeldCarts={setHeldCarts}
+              settings={settings}
+              currentUser={currentUser}
+              onTransactionCompleted={handleTransactionCompleted}
+              onSaveProduct={handleSaveProduct}
+              darkMode={darkMode}
+            />
+          )}
 
-        {activeTab === 'debts' && (
-          <DebtsView
-            debts={debts}
-            onSaveDebt={handleSaveDebt}
-            onRecordPayment={handleRecordDebtPayment}
-            settings={settings}
-            currentUser={currentUser}
-            darkMode={darkMode}
-          />
-        )}
-      </main>
+          {activeTab === 'inventory' && (
+            <InventoryView
+              products={products}
+              onSaveProduct={handleSaveProduct}
+              onDeleteProduct={handleDeleteProduct}
+              onBulkDeleteProducts={handleBulkDeleteProducts}
+              onAdjustStock={handleAdjustStock}
+              stockLogs={stockLogs}
+              settings={settings}
+              darkMode={darkMode}
+            />
+          )}
+
+          {activeTab === 'reports' && (
+            <ReportsView
+              transactions={transactions}
+              onCancelTransaction={handleCancelTransaction}
+              onViewReceipt={(trx) => setSelectedReceipt(trx)}
+              settings={settings}
+              darkMode={darkMode}
+            />
+          )}
+
+          {activeTab === 'debts' && (
+            <DebtsView
+              debts={debts}
+              onSaveDebt={handleSaveDebt}
+              onRecordPayment={handleRecordDebtPayment}
+              settings={settings}
+              currentUser={currentUser}
+              darkMode={darkMode}
+            />
+          )}
+
+          {activeTab === 'guide' && (
+            <GuideView
+              darkMode={darkMode}
+              onNavigateTab={handleTabChange}
+              onOpenSettings={() => setIsSettingsModalOpen(true)}
+            />
+          )}
+        </main>
+      </div>
 
       {/* 3. PIN Authentication Screen (if logged out / locked) */}
       {!currentUser && (
@@ -630,6 +728,7 @@ export default function App() {
         users={users}
         onSaveUsers={handleSaveUsers}
         onRestoreCompleted={loadDatabase}
+        onUpdateOwner={handleUpdateOwner}
         darkMode={darkMode}
       />
 
@@ -645,6 +744,9 @@ export default function App() {
           setActiveTab('cashier');
         }}
       />
+
+      {/* 7. PWA Quick Install Banner (Floating at bottom for mobile / desktop) */}
+      <PWAInstallPrompt variant="banner" darkMode={darkMode} />
     </div>
   );
 }

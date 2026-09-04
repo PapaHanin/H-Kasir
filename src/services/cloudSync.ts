@@ -107,59 +107,83 @@ export class CloudSyncService {
     try {
       // 1. Listen to Store Settings
       const storeRef = doc(firestoreDb, 'stores', STORE_ID);
-      const unsubStore = onSnapshot(storeRef, (snap) => {
-        if (snap.exists()) {
-          const data = snap.data();
-          if (data.settings) onSettingsChange(data.settings);
+      const unsubStore = onSnapshot(
+        storeRef,
+        (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data.settings) onSettingsChange(data.settings);
+          }
+        },
+        (err) => {
+          console.debug('Store snapshot offline fallback (operating locally):', err?.message);
         }
-      });
+      );
       this.unsubscribeListeners.push(unsubStore);
 
       // 2. Listen to Products Collection (Stock & Price changes in real-time)
       const productsCol = collection(firestoreDb, `stores/${STORE_ID}/products`);
-      const unsubProducts = onSnapshot(productsCol, (snap) => {
-        if (!snap.empty) {
-          const prods: Product[] = [];
-          snap.forEach((docSnap) => {
-            prods.push(docSnap.data() as Product);
-          });
-          if (prods.length > 0) {
-            onProductsChange(prods);
+      const unsubProducts = onSnapshot(
+        productsCol,
+        (snap) => {
+          if (!snap.empty) {
+            const prods: Product[] = [];
+            snap.forEach((docSnap) => {
+              prods.push(docSnap.data() as Product);
+            });
+            if (prods.length > 0) {
+              onProductsChange(prods);
+            }
           }
+        },
+        (err) => {
+          console.debug('Products snapshot offline fallback (operating locally):', err?.message);
         }
-      });
+      );
       this.unsubscribeListeners.push(unsubProducts);
 
       // 3. Listen to Transactions Collection
       const trxCol = collection(firestoreDb, `stores/${STORE_ID}/transactions`);
-      const unsubTrx = onSnapshot(trxCol, (snap) => {
-        if (!snap.empty) {
-          const trxs: Transaction[] = [];
-          snap.forEach((docSnap) => {
-            trxs.push(docSnap.data() as Transaction);
-          });
-          if (trxs.length > 0) {
-            // Sort by date descending
-            trxs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-            onTransactionsChange(trxs);
+      const unsubTrx = onSnapshot(
+        trxCol,
+        (snap) => {
+          if (!snap.empty) {
+            const trxs: Transaction[] = [];
+            snap.forEach((docSnap) => {
+              trxs.push(docSnap.data() as Transaction);
+            });
+            if (trxs.length > 0) {
+              // Sort by date descending
+              trxs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+              onTransactionsChange(trxs);
+            }
           }
+        },
+        (err) => {
+          console.debug('Transactions snapshot offline fallback (operating locally):', err?.message);
         }
-      });
+      );
       this.unsubscribeListeners.push(unsubTrx);
 
       // 4. Listen to Debts Collection
       const debtsCol = collection(firestoreDb, `stores/${STORE_ID}/debts`);
-      const unsubDebts = onSnapshot(debtsCol, (snap) => {
-        if (!snap.empty) {
-          const debtsList: CustomerDebt[] = [];
-          snap.forEach((docSnap) => {
-            debtsList.push(docSnap.data() as CustomerDebt);
-          });
-          if (debtsList.length > 0) {
-            onDebtsChange(debtsList);
+      const unsubDebts = onSnapshot(
+        debtsCol,
+        (snap) => {
+          if (!snap.empty) {
+            const debtsList: CustomerDebt[] = [];
+            snap.forEach((docSnap) => {
+              debtsList.push(docSnap.data() as CustomerDebt);
+            });
+            if (debtsList.length > 0) {
+              onDebtsChange(debtsList);
+            }
           }
+        },
+        (err) => {
+          console.debug('Debts snapshot offline fallback (operating locally):', err?.message);
         }
-      });
+      );
       this.unsubscribeListeners.push(unsubDebts);
     } catch (e) {
       console.warn('Realtime subscription error:', e);

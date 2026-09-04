@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   Printer,
   FileDown,
@@ -6,10 +6,17 @@ import {
   CheckCircle2,
   X,
   RefreshCw,
+  Bluetooth,
+  BluetoothConnected,
+  Loader2,
+  AlertCircle,
+  ExternalLink,
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { Transaction, StoreSettings } from '../types';
 import { formatRupiah, formatDateIndo } from '../services/export';
+import { bluetoothPrinter, isIframeEnvironment, openAppInNewTab } from '../services/bluetoothPrinter';
+import { sound } from '../services/sound';
 
 interface ReceiptModalProps {
   isOpen: boolean;
@@ -29,10 +36,17 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   onNewTransaction,
 }) => {
   const receiptRef = useRef<HTMLDivElement | null>(null);
+  const [btStatus, setBtStatus] = useState(bluetoothPrinter.getStatus());
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [printMessage, setPrintMessage] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const autoPrintedTrxIdRef = useRef<string | null>(null);
 
-  if (!isOpen || !transaction) return null;
+  useEffect(() => {
+    return bluetoothPrinter.subscribe(setBtStatus);
+  }, []);
 
-  // Direct Web Print
+  // Direct Web / USB Print
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -45,7 +59,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Struk_${transaction.invoiceNumber}</title>
+          <title>Struk_${transaction?.invoiceNumber || 'POS'}</title>
           <style>
             body {
               font-family: 'Courier New', Courier, monospace;
@@ -79,6 +93,94 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
       printWindow.print();
       printWindow.close();
     }, 250);
+  };
+
+  // The 1-Click Smart Universal Print handler (Foolproof for any cashier)
+  const handleSmartPrint = async () => {
+    if (!transaction) return;
+    setIsPrinting(true);
+    setPrintMessage({ text: 'Sedang mencetak struk...', type: 'info' });
+
+    // 1. If Bluetooth is already connected and not in restricted iframe, use ESC/POS
+    if (btStatus.isConnected && !isIframeEnvironment()) {
+      try {
+        await bluetoothPrinter.printReceipt(transaction, settings);
+        sound.playSuccess();
+        setPrintMessage({ text: `Struk sukses dikirim ke ${btStatus.deviceName || 'Printer Bluetooth'}!`, type: 'success' });
+        setTimeout(() => setPrintMessage(null), 3000);
+        setIsPrinting(false);
+        return;
+      } catch (err: any) {
+        console.warn('Bluetooth print failed, falling back to standard print:', err);
+      }
+    }
+
+    // 2. Direct seamless print via printer USB / standard print dialog
+    try {
+      handlePrint();
+      sound.playSuccess();
+      setPrintMessage({ text: 'Struk siap dicetak.', type: 'success' });
+    } catch {
+      setPrintMessage({ text: 'Gagal membuka printer.', type: 'error' });
+    } finally {
+      setIsPrinting(false);
+      setTimeout(() => setPrintMessage(null), 3000);
+    }
+  };
+
+  // Auto-print receipt if enabled in settings
+  useEffect(() => {
+    if (isOpen && transaction && settings.autoPrintReceipt) {
+      if (autoPrintedTrxIdRef.current !== transaction.id) {
+        autoPrintedTrxIdRef.current = transaction.id;
+        const timer = setTimeout(() => {
+          handleSmartPrint();
+        }, 350);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isOpen, transaction?.id, settings.autoPrintReceipt]);
+
+  if (!isOpen || !transaction) return null;
+
+  // Direct Bluetooth connect & print manually
+  const handlePrintBluetoothManual = async () => {
+    try {
+      setIsPrinting(true);
+      setPrintMessage({ text: 'Menghubungkan printer Bluetooth...', type: 'info' });
+      await bluetoothPrinter.printReceipt(transaction, settings);
+      sound.playSuccess();
+      setPrintMessage({ text: 'Struk berhasil dicetak via Bluetooth!', type: 'success' });
+      setTimeout(() => setPrintMessage(null), 3500);
+    } catch (err: any) {
+      sound.playError();
+      const errMsg = String(err?.message || '');
+      if (
+        err?.isIframePolicy ||
+        errMsg.toLowerCase().includes('permissions policy') ||
+        errMsg.toLowerCase().includes('disallowed')
+      ) {
+        // Cashier friendly fallback: print standard and advise new tab
+        setPrintMessage({ text: 'Akses Bluetooth dibatasi di pratinjau. Membuka cetak standar...', type: 'info' });
+        handlePrint();
+      } else if (!err?.isCancelled) {
+        setPrintMessage({ text: errMsg || 'Gagal koneksi Bluetooth.', type: 'error' });
+      }
+      setTimeout(() => setPrintMessage(null), 4000);
+    } finally {
+      setIsPrinting(false);
+    }
+  };
+
+  // RawBT Print handler for Indonesian Android POS
+  const handleRawBTPrint = () => {
+    if (!transaction) return;
+    const ok = bluetoothPrinter.printWithRawBT(transaction, settings);
+    if (ok) {
+      sound.playSuccess();
+      setPrintMessage({ text: 'Meneruskan ke aplikasi RawBT Android...', type: 'success' });
+      setTimeout(() => setPrintMessage(null), 3000);
+    }
   };
 
   // Download PDF receipt
@@ -214,22 +316,22 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
         }`}
       >
         {/* Header Notification Banner */}
-        <div className="bg-emerald-600 dark:bg-emerald-500 px-6 py-4 text-white dark:text-slate-950 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 px-6 py-4 text-white flex items-center justify-between shadow-md">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-white/10 dark:bg-slate-950/10 flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+              <CheckCircle2 className="w-5 h-5 text-white" />
             </div>
             <div>
               <h3 className="font-black text-sm tracking-tight">Pembayaran Berhasil!</h3>
-              <p className="text-xs opacity-90 font-mono">Faktur #{transaction.invoiceNumber}</p>
+              <p className="text-xs text-purple-100 font-mono">Faktur #{transaction.invoiceNumber}</p>
             </div>
           </div>
           <button
             id="btn-close-receipt"
             onClick={onClose}
-            className="p-1.5 rounded-lg opacity-80 hover:opacity-100 hover:bg-black/10 transition-colors"
+            className="p-1.5 rounded-lg opacity-80 hover:opacity-100 hover:bg-white/10 transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-white" />
           </button>
         </div>
 
@@ -266,7 +368,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               {transaction.customerName && (
                 <div className="flex justify-between">
                   <span className="text-slate-500">Pelanggan:</span>
-                  <span className="font-semibold text-emerald-700">{transaction.customerName}</span>
+                  <span className="font-semibold text-purple-700">{transaction.customerName}</span>
                 </div>
               )}
             </div>
@@ -306,7 +408,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               )}
               <div className="flex justify-between font-black text-sm pt-1.5 border-t border-slate-200">
                 <span>TOTAL:</span>
-                <span className="text-emerald-700">{formatRupiah(transaction.grandTotal)}</span>
+                <span className="text-purple-700">{formatRupiah(transaction.grandTotal)}</span>
               </div>
               <div className="flex justify-between pt-1">
                 <span className="text-slate-500">Metode:</span>
@@ -338,40 +440,128 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
 
         {/* Action Buttons */}
         <div className="p-4 bg-slate-50 dark:bg-slate-950/70 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              id="btn-receipt-print"
-              type="button"
-              onClick={handlePrint}
-              className="py-2.5 px-3 bg-emerald-600 dark:bg-emerald-500 hover:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-black text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
+          {/* Status Message Notification */}
+          {printMessage && (
+            <div
+              className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                printMessage.type === 'success'
+                  ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20'
+                  : printMessage.type === 'error'
+                  ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20'
+                  : 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20'
+              }`}
             >
-              <Printer className="w-4 h-4" />
-              <span>Cetak Struk</span>
+              {printMessage.type === 'error' ? (
+                <AlertCircle className="w-4 h-4 shrink-0" />
+              ) : printMessage.type === 'success' ? (
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+              ) : (
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+              )}
+              <span className="flex-1">{printMessage.text}</span>
+            </div>
+          )}
+
+          {/* 1-CLICK UNIVERSAL PRINT BUTTON (Foolproof for any cashier) */}
+          <button
+            id="btn-receipt-smart-print"
+            type="button"
+            onClick={handleSmartPrint}
+            disabled={isPrinting}
+            className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-sm sm:text-base rounded-2xl flex items-center justify-center gap-2.5 shadow-lg shadow-emerald-600/25 active:scale-98 transition-all cursor-pointer"
+          >
+            {isPrinting ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Sedang Mencetak Struk...</span>
+              </>
+            ) : (
+              <>
+                <Printer className="w-5 h-5" />
+                <span>CETAK STRUK SEKARANG</span>
+                {btStatus.isConnected && (
+                  <span className="ml-1 px-2 py-0.5 text-[10px] font-bold bg-white/20 rounded-full text-emerald-100">
+                    Bluetooth
+                  </span>
+                )}
+              </>
+            )}
+          </button>
+
+          {/* Secondary Quick Options: WhatsApp & PDF */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              id="btn-receipt-wa"
+              type="button"
+              onClick={handleShareWA}
+              className="py-2.5 px-3 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>Kirim Struk ke WA</span>
             </button>
             <button
               id="btn-receipt-pdf"
               type="button"
               onClick={handleDownloadPDF}
-              className={`py-2.5 px-3 border font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-colors active:scale-95 ${
+              className={`py-2.5 px-3 border font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-colors active:scale-95 cursor-pointer ${
                 darkMode
-                  ? 'border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-100'
+                  ? 'border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200'
                   : 'border-slate-300 bg-white hover:bg-slate-100 text-slate-700'
               }`}
             >
-              <FileDown className="w-4 h-4 text-emerald-500" />
-              <span>Unduh PDF</span>
-            </button>
-            <button
-              id="btn-receipt-wa"
-              type="button"
-              onClick={handleShareWA}
-              className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 active:scale-95 transition-all"
-            >
-              <Share2 className="w-4 h-4" />
-              <span>Kirim WA</span>
+              <FileDown className="w-3.5 h-3.5 text-blue-500" />
+              <span>Unduh File PDF</span>
             </button>
           </div>
 
+          {/* Toggle for Advanced Options (Bluetooth connect, RawBT, Tab Baru) */}
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+              className="text-[11px] text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium underline text-center w-full cursor-pointer py-1"
+            >
+              {showAdvancedOptions ? '▲ Sembunyikan Pilihan Lain' : '▼ Opsi Printer Lainnya (Bluetooth / RawBT Android)'}
+            </button>
+
+            {showAdvancedOptions && (
+              <div className="mt-2 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">Pilih Metode Lain:</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={handlePrintBluetoothManual}
+                    className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300 font-medium flex items-center justify-center gap-1.5 cursor-pointer hover:bg-blue-100"
+                  >
+                    <Bluetooth className="w-3.5 h-3.5" />
+                    <span>Pindai Bluetooth Manual</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRawBTPrint}
+                    className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900 text-purple-700 dark:text-purple-300 font-medium flex items-center justify-center gap-1.5 cursor-pointer hover:bg-purple-100"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>Cetak via RawBT (HP Android)</span>
+                  </button>
+                </div>
+                {isIframeEnvironment() && (
+                  <button
+                    type="button"
+                    onClick={() => openAppInNewTab()}
+                    className="w-full p-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 font-medium flex items-center justify-center gap-1.5 cursor-pointer hover:bg-amber-100"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Buka Kasir di Tab Baru (Untuk Layar Penuh)</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Selesai & Transaksi Baru */}
           <button
             id="btn-receipt-new-transaction"
             type="button"
@@ -379,7 +569,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               onClose();
               onNewTransaction();
             }}
-            className="w-full py-3 bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white text-white font-black text-sm rounded-xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-98 tracking-wide"
+            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-black text-sm rounded-xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-98 tracking-wide cursor-pointer"
           >
             <RefreshCw className="w-4 h-4" />
             <span>Selesai & Transaksi Baru</span>

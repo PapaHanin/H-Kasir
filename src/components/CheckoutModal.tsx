@@ -103,13 +103,16 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const isCashSufficient = cashGiven >= grandTotal;
 
   // Dynamic QRIS Payload
-  const qrisPayload = generateDynamicQRIS({
-    merchantName: settings.qrisMerchantName || settings.storeName,
-    merchantCity: 'JAKARTA',
-    nmid: settings.qrisNmid || 'ID1020038920192',
-    amount: grandTotal,
-    invoiceNumber,
-  });
+  const qrisPayload =
+    settings.qrisMode === 'RAW_STRING' && settings.qrisRawString
+      ? settings.qrisRawString
+      : generateDynamicQRIS({
+          merchantName: settings.qrisMerchantName || settings.storeName,
+          merchantCity: settings.qrisCity || 'JAKARTA',
+          nmid: settings.qrisNmid || 'ID1020038920192',
+          amount: grandTotal,
+          invoiceNumber,
+        });
 
   const handleCompleteTransaction = (chosenMethod: PaymentMethod = paymentMethod) => {
     if (chosenMethod === 'TUNAI' && !isCashSufficient) {
@@ -145,7 +148,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       cashierId: currentUser?.id || 'cashier-1',
       cashierName: currentUser?.name || 'Kasir',
       items: items.map((i) => {
-        const effectiveSellPrice = i.customPricePerKg || i.product.sellPrice;
+        const effectiveSellPrice = i.product.sellPrice;
         return {
           productId: i.product.id,
           productName: i.product.name,
@@ -158,12 +161,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           discount: i.discount,
           subtotal: i.subtotal,
           profit: (effectiveSellPrice - i.product.buyPrice) * i.quantity - i.discount,
-          gradingGrade: i.gradingGrade,
-          sortasiPercentage: i.sortasiPercentage,
-          sortasiKg: i.sortasiKg,
-          grossWeight: i.grossWeight,
-          netWeight: i.netWeight,
-          customPricePerKg: i.customPricePerKg,
         };
       }),
       totalQuantity: items.reduce((sum, i) => sum + i.quantity, 0),
@@ -225,14 +222,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         </div>
 
         {/* Grand Total Banner */}
-        <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 py-4 text-white flex items-center justify-between shadow-inner">
+        <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 px-6 py-4 text-white flex items-center justify-between shadow-inner">
           <div>
-            <div className="text-[11px] font-bold text-emerald-100 uppercase tracking-widest font-mono">TOTAL TAGIHAN</div>
+            <div className="text-[11px] font-bold text-purple-100 uppercase tracking-widest font-mono">TOTAL TAGIHAN</div>
             <div className="text-2xl sm:text-3xl font-black tracking-tight font-numeric">
               {formatRupiah(grandTotal)}
             </div>
           </div>
-          <div className="text-right text-xs text-emerald-100 hidden sm:block font-mono">
+          <div className="text-right text-xs text-purple-100 hidden sm:block font-mono">
             <div>Faktur: <span className="font-bold text-white">#{invoiceNumber}</span></div>
             <div>Kasir: <span className="font-bold text-white">{currentUser?.name || 'Kasir'}</span></div>
           </div>
@@ -247,9 +244,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               sound.playBeep(520, 0.04);
               setPaymentMethod('TUNAI');
             }}
-            className={`py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all border ${
+            className={`py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all border cursor-pointer ${
               paymentMethod === 'TUNAI'
-                ? 'bg-white dark:bg-slate-900 border-emerald-500/50 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                ? 'bg-white dark:bg-slate-900 border-purple-500 text-purple-600 dark:text-pink-400 shadow-sm'
                 : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
@@ -264,13 +261,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               sound.playBeep(520, 0.04);
               setPaymentMethod('QRIS');
             }}
-            className={`py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all border ${
+            className={`py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all border cursor-pointer ${
               paymentMethod === 'QRIS'
-                ? 'bg-white dark:bg-slate-900 border-emerald-500/50 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                ? 'bg-white dark:bg-slate-900 border-purple-500 text-purple-600 dark:text-pink-400 shadow-sm'
                 : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
-            <QrCode className="w-4 h-4 text-emerald-500" />
+            <QrCode className="w-4 h-4 text-purple-500" />
             <span>QRIS Real-Time</span>
           </button>
 
@@ -281,13 +278,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               sound.playBeep(520, 0.04);
               setPaymentMethod(digitalProvider);
             }}
-            className={`py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all border ${
+            className={`py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all border cursor-pointer ${
               ['GOPAY', 'OVO', 'DANA', 'SHOPEEPAY', 'TRANSFER_BANK'].includes(paymentMethod)
-                ? 'bg-white dark:bg-slate-900 border-emerald-500/50 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                ? 'bg-white dark:bg-slate-900 border-purple-500 text-purple-600 dark:text-pink-400 shadow-sm'
                 : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
-            <Smartphone className="w-4 h-4 text-blue-500" />
+            <Smartphone className="w-4 h-4 text-pink-500" />
             <span>E-Wallet / Bank</span>
           </button>
 
@@ -298,7 +295,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               sound.playBeep(520, 0.04);
               setPaymentMethod('KASBON');
             }}
-            className={`py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all border ${
+            className={`py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all border cursor-pointer ${
               paymentMethod === 'KASBON'
                 ? 'bg-white dark:bg-slate-900 border-amber-500/50 text-amber-600 dark:text-amber-400 shadow-sm'
                 : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -331,11 +328,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                           sound.playBeep(650, 0.04);
                           setCashGiven(amount);
                         }}
-                        className={`py-2.5 px-2 rounded-xl border text-xs font-bold font-numeric transition-all active:scale-95 ${
+                        className={`py-2.5 px-2 rounded-xl border text-xs font-bold font-numeric transition-all active:scale-95 cursor-pointer ${
                           isSelected
-                            ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 ring-2 ring-emerald-500/20'
+                            ? 'border-purple-500 bg-purple-500/10 text-purple-600 dark:text-pink-300 ring-2 ring-purple-500/20'
                             : isExact
-                            ? 'border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300'
+                            ? 'border-purple-500/40 bg-purple-500/5 text-purple-700 dark:text-pink-300'
                             : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                         }`}
                       >
@@ -360,7 +357,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       value={cashGiven || ''}
                       onChange={(e) => setCashGiven(Number(e.target.value))}
                       placeholder="0"
-                      className={`w-full pl-11 pr-3 py-2.5 rounded-xl border text-base font-bold font-numeric focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                      className={`w-full pl-11 pr-3 py-2.5 rounded-xl border text-base font-bold font-numeric focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                         darkMode
                           ? 'bg-slate-950 border-slate-800 text-white'
                           : 'bg-slate-50 border-slate-200 text-slate-800'
@@ -373,7 +370,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <div
                   className={`p-3 rounded-xl border flex flex-col justify-center ${
                     isCashSufficient
-                      ? 'bg-emerald-500/10 border-emerald-500/30'
+                      ? 'bg-purple-500/10 border-purple-500/30'
                       : 'bg-rose-500/10 border-rose-500/30'
                   }`}
                 >
@@ -382,7 +379,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   </span>
                   <span
                     className={`text-xl font-black font-numeric ${
-                      isCashSufficient ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'
+                      isCashSufficient ? 'text-purple-600 dark:text-pink-400' : 'text-rose-500'
                     }`}
                   >
                     {isCashSufficient ? formatRupiah(changeAmount) : formatRupiah(grandTotal - cashGiven)}
@@ -395,19 +392,31 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           {/* 2. QRIS REAL-TIME METHOD */}
           {paymentMethod === 'QRIS' && (
             <div className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-              {/* QR Code Container */}
+              {/* QR Code / Custom Image Container */}
               <div className="bg-white p-4 rounded-2xl shadow-lg border border-slate-200 flex flex-col items-center shrink-0">
                 <div className="text-[10px] font-black tracking-widest text-slate-700 uppercase mb-1.5 font-mono">
-                  QRIS STANDAR NASIONAL
+                  {settings.qrisMode === 'CUSTOM_IMAGE' && settings.qrisImageUrl ? 'QRIS RESMI TOKO' : 'QRIS STANDAR NASIONAL'}
                 </div>
-                <QRCodeSVG
-                  value={qrisPayload}
-                  size={170}
-                  level="M"
-                  includeMargin={false}
-                />
+                {settings.qrisMode === 'CUSTOM_IMAGE' && settings.qrisImageUrl ? (
+                  <div className="w-[170px] h-[170px] flex items-center justify-center bg-white p-1 rounded-lg border border-slate-100 overflow-hidden">
+                    <img
+                      src={settings.qrisImageUrl}
+                      alt="QRIS Toko"
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  </div>
+                ) : (
+                  <QRCodeSVG
+                    value={qrisPayload}
+                    size={170}
+                    level="M"
+                    includeMargin={false}
+                  />
+                )}
                 <div className="text-[9px] font-semibold font-mono text-slate-500 mt-2">
-                  NMID: {settings.qrisNmid || 'ID1020038920192'}
+                  {settings.qrisMode === 'CUSTOM_IMAGE'
+                    ? (settings.qrisMerchantName || settings.storeName)
+                    : `NMID: ${settings.qrisNmid || 'ID1020038920192'}`}
                 </div>
               </div>
 
@@ -424,26 +433,34 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   </p>
                 </div>
 
-                <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-600 dark:text-emerald-300 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 shrink-0 text-emerald-500" />
-                  <span>Jumlah tagihan <strong className="font-numeric font-black">{formatRupiah(grandTotal)}</strong> otomatis tercantum di QR (Dinamis)!</span>
+                <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20 text-xs text-purple-600 dark:text-pink-300 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 shrink-0 text-pink-500" />
+                  {settings.qrisMode === 'CUSTOM_IMAGE' ? (
+                    <span>
+                      Minta pelanggan memasukkan nominal belanja tepat <strong className="font-numeric font-black text-sm">{formatRupiah(grandTotal)}</strong> di HP saat scan!
+                    </span>
+                  ) : (
+                    <span>Jumlah tagihan <strong className="font-numeric font-black">{formatRupiah(grandTotal)}</strong> otomatis tercantum di QR (Dinamis)!</span>
+                  )}
                 </div>
 
                 {/* Instant Verification & Notification */}
                 <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-2">
                   <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 font-mono">
                     <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                      <span className="w-2 h-2 rounded-full bg-purple-500 animate-ping"></span>
                       Status: Menunggu Pembayaran QRIS
                     </span>
-                    <span className="text-emerald-600 font-bold">NMID Terdaftar</span>
+                    <span className="text-purple-600 dark:text-pink-400 font-bold">
+                      {settings.qrisMode === 'CUSTOM_IMAGE' ? 'Foto QRIS Aktif' : 'NMID Terdaftar'}
+                    </span>
                   </div>
                   
                   <button
                     id="btn-simulate-qris-paid"
                     type="button"
                     onClick={() => handleCompleteTransaction('QRIS')}
-                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
                   >
                     <CheckCircle className="w-4 h-4" />
                     <span>Konfirmasi Pembayaran QRIS Masuk</span>
@@ -461,9 +478,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                 {[
-                  { id: 'GOPAY', name: 'GoPay', color: 'text-emerald-600' },
+                  { id: 'GOPAY', name: 'GoPay', color: 'text-purple-600' },
                   { id: 'OVO', name: 'OVO', color: 'text-purple-600' },
-                  { id: 'DANA', name: 'DANA', color: 'text-blue-500' },
+                  { id: 'DANA', name: 'DANA', color: 'text-pink-500' },
                   { id: 'SHOPEEPAY', name: 'ShopeePay', color: 'text-orange-500' },
                   { id: 'TRANSFER_BANK', name: 'Transfer Bank', color: 'text-slate-700' },
                 ].map((prov) => (
@@ -475,9 +492,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       setDigitalProvider(prov.id as any);
                       setPaymentMethod(prov.id as any);
                     }}
-                    className={`py-3 px-2 rounded-xl border text-xs font-bold transition-all ${
+                    className={`py-3 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                       paymentMethod === prov.id
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 ring-2 ring-emerald-500/20'
+                        ? 'border-purple-500 bg-purple-500/10 text-purple-600 dark:text-pink-300 ring-2 ring-purple-500/20'
                         : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
                     }`}
                   >
@@ -493,9 +510,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       key={b}
                       type="button"
                       onClick={() => setBankName(b)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold border cursor-pointer ${
                         bankName === b
-                          ? 'bg-blue-600 text-white border-blue-600'
+                          ? 'bg-purple-600 text-white border-purple-600'
                           : 'border-slate-300 dark:border-slate-800'
                       }`}
                     >
@@ -505,7 +522,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </div>
               )}
 
-              <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-600 dark:text-blue-300 flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs text-purple-600 dark:text-pink-300 flex items-center gap-2">
                 <CreditCard className="w-4 h-4 shrink-0" />
                 <span>
                   Pastikan saldo pembayaran sudah masuk ke rekening toko sebelum menyelesaikan transaksi.
@@ -602,7 +619,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             id="btn-cancel-checkout"
             type="button"
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             Batal
           </button>
@@ -612,7 +629,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             type="button"
             onClick={() => handleCompleteTransaction(paymentMethod)}
             disabled={isProcessing || (paymentMethod === 'TUNAI' && !isCashSufficient)}
-            className="py-3 px-6 bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-white dark:text-slate-950 font-black text-sm rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all active:scale-98"
+            className="py-3 px-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-sm rounded-xl shadow-lg shadow-purple-500/20 flex items-center gap-2 transition-all active:scale-98 cursor-pointer"
           >
             <CheckCircle className="w-4 h-4" />
             <span>
