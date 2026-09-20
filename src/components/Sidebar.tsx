@@ -168,7 +168,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </h1>
                 <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  <span className="truncate">Sistem Kasir Pintar</span>
+                  <span className="truncate">Kasir-Q POS &amp; Stok</span>
                 </div>
               </div>
             )}

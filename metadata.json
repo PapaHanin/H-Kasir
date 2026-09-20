@@ -1,6 +1,6 @@
 {
   "name": "KasirKelontong POS & Stok",
-  "description": "Aplikasi kasir toko kelontong offline-first dengan enkripsi lokal AES-256, pembayaran QRIS real-time, manajemen stok otomatis, laporan penjualan harian, cetak struk otomatis, dan ekspor PDF/Excel.",
+  "description": "Kasir-Q: Aplikasi kasir toko kelontong PWA offline-first dengan enkripsi lokal AES-256, pembayaran QRIS real-time, manajemen stok otomatis, laporan penjualan harian, cetak struk otomatis, dan ekspor PDF/Excel.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
