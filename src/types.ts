@@ -127,6 +127,7 @@ export interface CashierShift {
 }
 
 export interface StoreSettings {
+  storeId?: string; // ID Unik Toko / Tenant ID untuk isolasi database Cloud
   storeName: string;
   ownerName?: string;
   tagline: string;
@@ -145,6 +146,7 @@ export interface StoreSettings {
   autoPrintReceipt: boolean;
   playAudioFeedback: boolean;
   encryptionEnabled: boolean;
+  enableCloudSync?: boolean;
   vaultKeyHash?: string;
 }
 

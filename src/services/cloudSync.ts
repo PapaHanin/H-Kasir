@@ -25,7 +25,7 @@ export interface CloudSyncState {
   syncedStoresCount: number;
 }
 
-const STORE_ID = 'toko_kelontong_main';
+const DEFAULT_STORE_ID = 'toko_kelontong_main';
 
 export class CloudSyncService {
   private unsubscribeListeners: Array<() => void> = [];
@@ -42,6 +42,15 @@ export class CloudSyncService {
     }
   }
 
+  // Get Store ID for multi-tenant isolation
+  public getStoreId(settings?: StoreSettings): string {
+    const custom = settings?.storeId;
+    if (custom && custom.trim()) {
+      return custom.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+    }
+    return DEFAULT_STORE_ID;
+  }
+
   // Push Full Store State to Cloud Firestore
   public async pushFullStoreToCloud(data: {
     products: Product[];
@@ -54,7 +63,8 @@ export class CloudSyncService {
     activeShift: CashierShift | null;
   }): Promise<boolean> {
     try {
-      const storeRef = doc(firestoreDb, 'stores', STORE_ID);
+      const storeId = this.getStoreId(data.settings);
+      const storeRef = doc(firestoreDb, 'stores', storeId);
       await setDoc(
         storeRef,
         {
@@ -70,19 +80,19 @@ export class CloudSyncService {
       // Batch write products for fast sync
       const batch = writeBatch(firestoreDb);
       data.products.forEach((prod) => {
-        const pRef = doc(firestoreDb, `stores/${STORE_ID}/products`, prod.id);
+        const pRef = doc(firestoreDb, `stores/${storeId}/products`, prod.id);
         batch.set(pRef, prod, { merge: true });
       });
 
       // Save latest transactions
       data.transactions.slice(-100).forEach((trx) => {
-        const tRef = doc(firestoreDb, `stores/${STORE_ID}/transactions`, trx.id);
+        const tRef = doc(firestoreDb, `stores/${storeId}/transactions`, trx.id);
         batch.set(tRef, trx, { merge: true });
       });
 
       // Save customer debts
       data.debts.forEach((debt) => {
-        const dRef = doc(firestoreDb, `stores/${STORE_ID}/debts`, debt.id);
+        const dRef = doc(firestoreDb, `stores/${storeId}/debts`, debt.id);
         batch.set(dRef, debt, { merge: true });
       });
 
@@ -99,14 +109,19 @@ export class CloudSyncService {
     onProductsChange: (products: Product[]) => void,
     onTransactionsChange: (transactions: Transaction[]) => void,
     onDebtsChange: (debts: CustomerDebt[]) => void,
-    onSettingsChange: (settings: StoreSettings) => void
+    onSettingsChange: (settings: StoreSettings) => void,
+    customStoreId?: string
   ): () => void {
     // Clear old subscriptions
     this.unsubscribe();
 
+    const storeId = customStoreId && customStoreId.trim()
+      ? customStoreId.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+      : DEFAULT_STORE_ID;
+
     try {
       // 1. Listen to Store Settings
-      const storeRef = doc(firestoreDb, 'stores', STORE_ID);
+      const storeRef = doc(firestoreDb, 'stores', storeId);
       const unsubStore = onSnapshot(
         storeRef,
         (snap) => {
@@ -122,7 +137,7 @@ export class CloudSyncService {
       this.unsubscribeListeners.push(unsubStore);
 
       // 2. Listen to Products Collection (Stock & Price changes in real-time)
-      const productsCol = collection(firestoreDb, `stores/${STORE_ID}/products`);
+      const productsCol = collection(firestoreDb, `stores/${storeId}/products`);
       const unsubProducts = onSnapshot(
         productsCol,
         (snap) => {
@@ -143,7 +158,7 @@ export class CloudSyncService {
       this.unsubscribeListeners.push(unsubProducts);
 
       // 3. Listen to Transactions Collection
-      const trxCol = collection(firestoreDb, `stores/${STORE_ID}/transactions`);
+      const trxCol = collection(firestoreDb, `stores/${storeId}/transactions`);
       const unsubTrx = onSnapshot(
         trxCol,
         (snap) => {
@@ -166,7 +181,7 @@ export class CloudSyncService {
       this.unsubscribeListeners.push(unsubTrx);
 
       // 4. Listen to Debts Collection
-      const debtsCol = collection(firestoreDb, `stores/${STORE_ID}/debts`);
+      const debtsCol = collection(firestoreDb, `stores/${storeId}/debts`);
       const unsubDebts = onSnapshot(
         debtsCol,
         (snap) => {
@@ -193,28 +208,32 @@ export class CloudSyncService {
   }
 
   // Pull initial cloud data
-  public async pullFullStoreFromCloud(): Promise<{
+  public async pullFullStoreFromCloud(customStoreId?: string): Promise<{
     products?: Product[];
     transactions?: Transaction[];
     debts?: CustomerDebt[];
     settings?: StoreSettings;
   } | null> {
     try {
-      const storeRef = doc(firestoreDb, 'stores', STORE_ID);
+      const storeId = customStoreId && customStoreId.trim()
+        ? customStoreId.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+        : DEFAULT_STORE_ID;
+
+      const storeRef = doc(firestoreDb, 'stores', storeId);
       const storeSnap = await getDoc(storeRef);
       const settings = storeSnap.exists() ? storeSnap.data()?.settings : undefined;
 
-      const productsCol = collection(firestoreDb, `stores/${STORE_ID}/products`);
+      const productsCol = collection(firestoreDb, `stores/${storeId}/products`);
       const prodSnap = await getDocs(productsCol);
       const products: Product[] = [];
       prodSnap.forEach((d) => products.push(d.data() as Product));
 
-      const trxCol = collection(firestoreDb, `stores/${STORE_ID}/transactions`);
+      const trxCol = collection(firestoreDb, `stores/${storeId}/transactions`);
       const trxSnap = await getDocs(trxCol);
       const transactions: Transaction[] = [];
       trxSnap.forEach((d) => transactions.push(d.data() as Transaction));
 
-      const debtsCol = collection(firestoreDb, `stores/${STORE_ID}/debts`);
+      const debtsCol = collection(firestoreDb, `stores/${storeId}/debts`);
       const debtSnap = await getDocs(debtsCol);
       const debts: CustomerDebt[] = [];
       debtSnap.forEach((d) => debts.push(d.data() as CustomerDebt));

@@ -26,6 +26,7 @@ import { ShiftModal } from './components/ShiftModal';
 import { ReceiptModal } from './components/ReceiptModal';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import { GuideView } from './components/GuideView';
+import { MobileBottomNav } from './components/MobileBottomNav';
 
 export default function App() {
   // Database state
@@ -47,9 +48,13 @@ export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('pos_dark_mode') === 'true';
+      const saved = localStorage.getItem('pos_dark_mode');
+      if (saved !== null) {
+        return saved === 'true';
+      }
+      return true; // Default to Option 2: Minimalist High Contrast (Dark)
     }
-    return false;
+    return true;
   });
 
   // Modals state
@@ -62,6 +67,20 @@ export default function App() {
 
   // Load local database on mount
   const loadDatabase = useCallback(() => {
+    // Check if URL specifies a store ID for this client (e.g. ?store=toko_berkah)
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlStoreId = params.get('store') || params.get('toko');
+      if (urlStoreId && urlStoreId.trim()) {
+        const cleanStoreId = urlStoreId.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+        const currentData = db.load();
+        if (currentData.settings.storeId !== cleanStoreId) {
+          const updatedSettings = { ...currentData.settings, storeId: cleanStoreId };
+          db.saveSettings(updatedSettings);
+        }
+      }
+    }
+
     const data = db.load();
     setProducts(data.products || []);
     setTransactions(data.transactions || []);
@@ -80,10 +99,18 @@ export default function App() {
   }, [loadDatabase]);
 
   // Real-time Cloud Synchronization (Firebase Firestore)
+  // Default is 100% OFFLINE STANDALONE - Cloud only runs if explicitly activated
   useEffect(() => {
+    if (!settings?.enableCloudSync) {
+      setCloudSyncStatus('OFFLINE');
+      return;
+    }
+
+    const currentStoreId = settings?.storeId || db.load().settings?.storeId || 'toko_kelontong_main';
+
     // 1. Initial Cloud Pull & Sync
     cloudSync
-      .pullFullStoreFromCloud()
+      .pullFullStoreFromCloud(currentStoreId)
       .then((cloudData) => {
         if (cloudData && (cloudData.products || cloudData.transactions)) {
           isSyncingFromCloudRef.current = true;
@@ -153,11 +180,12 @@ export default function App() {
         setTimeout(() => {
           isSyncingFromCloudRef.current = false;
         }, 300);
-      }
+      },
+      currentStoreId
     );
 
     return () => unsub();
-  }, []);
+  }, [settings?.storeId]);
 
   // Sync dark mode class with DOM
   useEffect(() => {
@@ -745,7 +773,16 @@ export default function App() {
         }}
       />
 
-      {/* 7. PWA Quick Install Banner (Floating at bottom for mobile / desktop) */}
+      {/* 7. Mobile Bottom Navigation (Ergonomic layout for smartphones & PWA) */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        setActiveTab={handleTabChange}
+        cartItemCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
+        onOpenMobileMenu={() => setIsMobileDrawerOpen(true)}
+        darkMode={darkMode}
+      />
+
+      {/* 8. PWA Quick Install Banner (Floating at bottom for mobile / desktop) */}
       <PWAInstallPrompt variant="banner" darkMode={darkMode} />
     </div>
   );

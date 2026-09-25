@@ -328,7 +328,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
             id="btn-add-product"
             type="button"
             onClick={openAddModal}
-            className="px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 hover:bg-emerald-500 dark:hover:bg-emerald-400 flex items-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95 transition-all tracking-wide cursor-pointer"
+            className="px-4 py-2 rounded-xl text-xs font-black bg-amber-500 text-zinc-950 hover:bg-amber-400 flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition-all tracking-wide cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Barang Baru</span>

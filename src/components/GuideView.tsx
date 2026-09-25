@@ -65,35 +65,35 @@ export const GuideView: React.FC<GuideViewProps> = ({
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-700 to-slate-900 p-6 sm:p-8 text-white shadow-xl">
+      <div className="relative overflow-hidden rounded-3xl bg-zinc-950 border border-zinc-800 p-6 sm:p-8 text-white shadow-xl">
         <div className="relative z-10 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-emerald-100 text-xs font-bold tracking-wide">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>PANDUAN PENGGUNAAN RESMI KASIR KELONTONG</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-amber-400 text-xs font-mono font-bold tracking-wide">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>PANDUAN PENGGUNAAN RESMI KASIR KELONTONG (KASIR-Q)</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight">
-            Buku Panduan Operasional & Fitur Aplikasi
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
+            Buku Panduan Operasional &amp; Fitur Kasir
           </h1>
-          <p className="text-emerald-100/90 text-sm sm:text-base max-w-3xl leading-relaxed">
-            Panduan lengkap mulai dari menyalakan toko di pagi hari, melayani transaksi penjualan cepat, scan barcode, penyesuaian stok, mengatasi printer struk, hingga tutup buku kasir di malam hari.
+          <p className="text-zinc-400 text-sm sm:text-base max-w-3xl leading-relaxed">
+            Panduan lengkap mulai dari membuka toko di pagi hari, melayani transaksi cepat via shortcut keyboard, scan barcode kamera &amp; USB, penyesuaian stok, koneksi printer thermal Bluetooth, hingga tutup kasir malam hari.
           </p>
 
           {/* Search Box */}
           <div className="pt-2 max-w-xl">
             <div className="relative">
-              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
               <input
                 type="text"
                 placeholder="Cari panduan... (contoh: kasbon, print epson, diskon, tutup shift, barcode)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white text-slate-900 placeholder-slate-400 text-sm font-medium focus:outline-hidden focus:ring-4 focus:ring-emerald-400/40 shadow-lg"
+                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-500 text-sm font-medium focus:outline-hidden focus:border-amber-500 shadow-lg"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold px-2 py-1 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold px-2 py-1 bg-zinc-800 text-zinc-300 rounded-lg hover:bg-zinc-700"
                 >
                   Reset
                 </button>
@@ -101,9 +101,6 @@ export const GuideView: React.FC<GuideViewProps> = ({
             </div>
           </div>
         </div>
-
-        {/* Decorative Background Blob */}
-        <div className="absolute -right-12 -bottom-16 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
       </div>
 
       {/* Category Pills Filter */}
@@ -121,10 +118,8 @@ export const GuideView: React.FC<GuideViewProps> = ({
               }}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20 scale-102'
-                  : darkMode
-                  ? 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700'
-                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                  ? 'bg-amber-500 text-zinc-950 font-black shadow-md'
+                  : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 border border-zinc-800'
               }`}
             >
               <Icon className="w-4 h-4" />

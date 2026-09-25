@@ -67,7 +67,14 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const isScanningRef = useRef(false);
   const lastScannedCodeRef = useRef<{ code: string; timestamp: number } | null>(null);
-  const containerIdRef = useRef<string>(`barcode-scanner-container-${Math.random().toString(36).substring(2, 7)}`);
+  const CONTAINER_ELEMENT_ID = 'barcode-scanner-viewport-target';
+  const isOpenRef = useRef(isOpen);
+  const sessionIdRef = useRef(0);
+
+  // Keep isOpenRef updated
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
 
   // Detect iframe context
   useEffect(() => {
@@ -80,22 +87,38 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
 
   // Start / Stop camera when modal opens/closes
   useEffect(() => {
+    isOpenRef.current = isOpen;
+    const currentSession = ++sessionIdRef.current;
+
     if (isOpen) {
       setCameraError(null);
       setErrorType(null);
       setUnregisteredCode(null);
       setIsInitializing(true);
 
-      // Give React modal animation time to mount container DOM
+      // Wait until modal is rendered into DOM and has positive dimensions
       let attempts = 0;
       const interval = setInterval(() => {
         attempts++;
-        const el = document.getElementById(containerIdRef.current);
-        if (el || attempts > 10) {
+        if (!isOpenRef.current || currentSession !== sessionIdRef.current) {
+          clearInterval(interval);
+          return;
+        }
+
+        const el = document.getElementById(CONTAINER_ELEMENT_ID);
+        if (el && el.clientWidth > 0) {
           clearInterval(interval);
           startScanner();
+        } else if (attempts > 20) {
+          clearInterval(interval);
+          // If still zero or taking long, requestAnimationFrame retry
+          requestAnimationFrame(() => {
+            if (isOpenRef.current && currentSession === sessionIdRef.current) {
+              startScanner();
+            }
+          });
         }
-      }, 100);
+      }, 75);
 
       return () => {
         clearInterval(interval);
@@ -112,15 +135,20 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
   // Clean up scanner on unmount
   useEffect(() => {
     return () => {
+      isOpenRef.current = false;
       stopScanner();
     };
   }, []);
 
   const startScanner = async (targetCameraId?: string) => {
-    const containerId = containerIdRef.current;
+    const currentSession = ++sessionIdRef.current;
+    const containerId = CONTAINER_ELEMENT_ID;
+
+    if (!isOpenRef.current) return;
+
     const element = document.getElementById(containerId);
-    if (!element) {
-      console.warn('Scanner container DOM element not found');
+    if (!element || !document.body.contains(element) || element.clientWidth <= 0) {
+      console.warn('Scanner container DOM element not mounted yet');
       return;
     }
 
@@ -129,8 +157,22 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
     setErrorType(null);
 
     // Stop existing running instance cleanly
-    if (html5QrCodeRef.current && isScanningRef.current) {
+    if (html5QrCodeRef.current) {
       await stopScanner();
+      if (!isOpenRef.current || currentSession !== sessionIdRef.current) return;
+    }
+
+    // Verify container element is still present after any stop
+    const freshElement = document.getElementById(containerId);
+    if (!freshElement || !document.body.contains(freshElement) || freshElement.clientWidth <= 0) {
+      return;
+    }
+
+    // Clear any stale children inside container
+    try {
+      freshElement.innerHTML = '';
+    } catch {
+      // ignore
     }
 
     const formatsToSupport = [
@@ -146,14 +188,20 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
       Html5QrcodeSupportedFormats.QR_CODE,
     ];
 
-    const html5QrCode = new Html5Qrcode(containerId, {
-      formatsToSupport,
-      verbose: false,
-      experimentalFeatures: {
-        useBarCodeDetectorIfSupported: true,
-      },
-    });
-    html5QrCodeRef.current = html5QrCode;
+    let html5QrCode: Html5Qrcode;
+    try {
+      html5QrCode = new Html5Qrcode(containerId, {
+        formatsToSupport,
+        verbose: false,
+        experimentalFeatures: {
+          useBarCodeDetectorIfSupported: true,
+        },
+      });
+      html5QrCodeRef.current = html5QrCode;
+    } catch (createErr) {
+      console.warn('Html5Qrcode instantiation note:', createErr);
+      return;
+    }
 
     const config = {
       fps: 15,
@@ -170,6 +218,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
     let cameras: CameraDeviceInfo[] = [];
     try {
       const detectedCameras = await Html5Qrcode.getCameras();
+      if (!isOpenRef.current || currentSession !== sessionIdRef.current) return;
       if (detectedCameras && detectedCameras.length > 0) {
         cameras = detectedCameras;
         setAvailableCameras(detectedCameras);
@@ -177,6 +226,8 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
     } catch (enumErr) {
       console.warn('Enumerate cameras note:', enumErr);
     }
+
+    if (!isOpenRef.current || currentSession !== sessionIdRef.current) return;
 
     // Step 2: Determine which camera to start
     let chosenSource: string | { facingMode: string } = targetCameraId || selectedCameraId;
@@ -196,7 +247,13 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
       }
     }
 
-    // Step 3: Start camera with robust progressive fallback
+    // Step 3: Final check right before hardware start
+    const finalElement = document.getElementById(containerId);
+    if (!finalElement || !document.body.contains(finalElement) || finalElement.clientWidth <= 0) {
+      console.warn('Scanner container unmounted or hidden prior to start');
+      return;
+    }
+
     try {
       await html5QrCode.start(
         chosenSource,
@@ -209,16 +266,37 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
         }
       );
 
+      if (!isOpenRef.current || currentSession !== sessionIdRef.current) {
+        await stopScanner();
+        return;
+      }
+
       isScanningRef.current = true;
       setCameraActive(true);
       setIsInitializing(false);
       setCameraError(null);
       setErrorType(null);
     } catch (err: any) {
+      if (!isOpenRef.current || currentSession !== sessionIdRef.current) {
+        return;
+      }
+
+      const errMsg = String(err?.message || err || '');
+      if (errMsg.includes('clientWidth') || !document.getElementById(containerId)) {
+        console.warn('Camera start aborted due to container unmounting/zero width:', errMsg);
+        setIsInitializing(false);
+        return;
+      }
+
       console.warn('First camera start failed, trying progressive fallback:', err);
 
       // Fallback Strategy 1: If environment facingMode threw OverconstrainedError (common on laptop/PC webcams)
       try {
+        const fallbackTargetEl = document.getElementById(containerId);
+        if (!fallbackTargetEl || !document.body.contains(fallbackTargetEl) || fallbackTargetEl.clientWidth <= 0) {
+          return;
+        }
+
         if (typeof chosenSource === 'object') {
           // Try user facing webcam (laptop/PC webcam)
           await html5QrCode.start(
@@ -227,6 +305,10 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
             (decodedText) => handleBarcodeDetected(decodedText.trim()),
             () => {}
           );
+          if (!isOpenRef.current || currentSession !== sessionIdRef.current) {
+            await stopScanner();
+            return;
+          }
           isScanningRef.current = true;
           setCameraActive(true);
           setIsInitializing(false);
@@ -242,6 +324,10 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
               (decodedText) => handleBarcodeDetected(decodedText.trim()),
               () => {}
             );
+            if (!isOpenRef.current || currentSession !== sessionIdRef.current) {
+              await stopScanner();
+              return;
+            }
             setSelectedCameraId(other.id);
             isScanningRef.current = true;
             setCameraActive(true);
@@ -252,6 +338,16 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
         }
       } catch (fallbackErr: any) {
         err = fallbackErr;
+      }
+
+      if (!isOpenRef.current || currentSession !== sessionIdRef.current) {
+        return;
+      }
+
+      const finalErrMsg = String(err?.message || err || '');
+      if (finalErrMsg.includes('clientWidth') || !document.getElementById(containerId)) {
+        setIsInitializing(false);
+        return;
       }
 
       // If all attempts failed, diagnose error type accurately
@@ -298,19 +394,26 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
   };
 
   const stopScanner = async () => {
-    try {
-      if (html5QrCodeRef.current && isScanningRef.current) {
-        isScanningRef.current = false;
-        await html5QrCodeRef.current.stop();
-        html5QrCodeRef.current.clear();
+    sessionIdRef.current++;
+    const instance = html5QrCodeRef.current;
+    html5QrCodeRef.current = null;
+    isScanningRef.current = false;
+
+    if (instance) {
+      try {
+        await instance.stop();
+      } catch {
+        // ignore stop errors
       }
-    } catch {
-      // ignore clean up errors
-    } finally {
-      html5QrCodeRef.current = null;
-      setCameraActive(false);
-      setIsInitializing(false);
+      try {
+        instance.clear();
+      } catch {
+        // ignore clear errors
+      }
     }
+
+    setCameraActive(false);
+    setIsInitializing(false);
   };
 
   // Request native permission directly via user click gesture
@@ -423,7 +526,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
     if (!file) return;
 
     try {
-      const tempScanner = new Html5Qrcode(containerIdRef.current, {
+      const tempScanner = new Html5Qrcode(CONTAINER_ELEMENT_ID, {
         formatsToSupport: [
           Html5QrcodeSupportedFormats.EAN_13,
           Html5QrcodeSupportedFormats.EAN_8,
@@ -491,8 +594,12 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
         {/* Real-time Camera Viewport */}
         <div className="p-4 sm:p-5 space-y-4">
           <div className="relative w-full h-72 bg-black rounded-2xl overflow-hidden flex items-center justify-center border border-slate-700 shadow-inner">
-            {/* HTML5-QRCode Mount Point */}
-            <div id={containerIdRef.current} className="w-full h-full object-cover" />
+            {/* HTML5-QRCode Mount Point with guaranteed dimensions */}
+            <div
+              id={CONTAINER_ELEMENT_ID}
+              className="w-full h-full min-h-[260px] object-cover"
+              style={{ minHeight: '260px', width: '100%' }}
+            />
 
             {/* Visual Laser Guide Overlay */}
             {cameraActive && (

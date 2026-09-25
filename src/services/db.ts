@@ -87,22 +87,24 @@ const INITIAL_USERS: CashierUser[] = [
 ];
 
 const INITIAL_SETTINGS: StoreSettings = {
-  storeName: 'Toko Kelontong Berkah Jaya',
+  storeId: 'toko_offline_local',
+  storeName: 'Toko Kelontong Anda',
   ownerName: 'Pemilik / Kasir Utama',
   tagline: 'Sembako Lengkap, Murah & Terpercaya',
-  address: 'Jl. Melati No. 18, RT 03 / RW 05',
+  address: 'Jl. Raya Utama No. 01',
   phone: '0812-3456-7890',
   footerMessage: 'Barang yang sudah dibeli tidak dapat ditukar kecuali ada perjanjian. Terima kasih atas kunjungan Anda.',
   taxPercentage: 0,
   enableTax: false,
   paperSize: '58mm',
-  qrisMerchantName: 'TOKO KELONTONG BERKAH',
+  qrisMerchantName: 'TOKO KELONTONG',
   qrisNmid: 'ID1020038920192',
   qrisCity: 'JAKARTA',
   qrisMode: 'DYNAMIC_NMID',
   autoPrintReceipt: true,
   playAudioFeedback: true,
   encryptionEnabled: true,
+  enableCloudSync: false,
 };
 
 const INITIAL_PRODUCTS: Product[] = [
@@ -1100,6 +1102,8 @@ class LocalEncryptedDatabase {
       }
       if (!data.settings) {
         data.settings = INITIAL_SETTINGS;
+      } else if (data.settings.enableCloudSync === undefined) {
+        data.settings.enableCloudSync = false;
       }
       if (!data.debts) data.debts = [];
       if (!data.transactions) data.transactions = [];
@@ -1269,6 +1273,29 @@ class LocalEncryptedDatabase {
   public resetToFactoryDefault() {
     const fresh = this.getInitialSchema();
     this.save(fresh);
+  }
+
+  // Clear transactional history for a new store client (wipes transactions, debts, shifts, logs)
+  public clearStoreForNewClient(options?: { keepProducts?: boolean }) {
+    const current = this.load();
+    const freshSchema: DatabaseSchema = {
+      ...current,
+      transactions: [],
+      debts: [],
+      activeShift: null,
+      shiftHistory: [],
+      stockLogs: [],
+      heldCarts: [],
+      products: options?.keepProducts ? current.products : [],
+    };
+    this.save(freshSchema);
+    return freshSchema;
+  }
+
+  public saveSettings(settings: StoreSettings) {
+    const current = this.load();
+    current.settings = settings;
+    this.save(current);
   }
 }
 

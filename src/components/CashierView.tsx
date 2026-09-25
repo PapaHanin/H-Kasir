@@ -18,6 +18,7 @@ import {
   AlertCircle,
   X,
   Sparkles,
+  ChevronUp,
 } from 'lucide-react';
 import {
   Product,
@@ -33,7 +34,7 @@ import { sound } from '../services/sound';
 import { CheckoutModal } from './CheckoutModal';
 import { BarcodeScannerModal } from './BarcodeScannerModal';
 
-const CATEGORIES: ('ALL' | string)[] = [
+const CATEGORIES: ('ALL' | ProductCategory)[] = [
   'ALL',
   'Sembako & Beras',
   'Minyak & Bumbu',
@@ -47,90 +48,17 @@ const CATEGORIES: ('ALL' | string)[] = [
   'Plastik, Baterai & Lainnya',
 ];
 
-const getCategoryStyle = (category: string) => {
-  switch (category) {
-    case 'Sembako & Beras':
-      return {
-        gradientBar: 'from-amber-500 via-orange-500 to-amber-600',
-        badgeBg: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
-        cardBorderHover: 'hover:border-amber-500/70 hover:shadow-amber-500/15',
-        accentColor: 'text-amber-600 dark:text-amber-400',
-        icon: '🌾',
-      };
-    case 'Minyak & Bumbu':
-      return {
-        gradientBar: 'from-rose-500 via-red-500 to-rose-600',
-        badgeBg: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30',
-        cardBorderHover: 'hover:border-rose-500/70 hover:shadow-rose-500/15',
-        accentColor: 'text-rose-600 dark:text-rose-400',
-        icon: '🍳',
-      };
-    case 'Mie & Makanan Instan':
-      return {
-        gradientBar: 'from-orange-500 via-amber-500 to-orange-600',
-        badgeBg: 'bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30',
-        cardBorderHover: 'hover:border-orange-500/70 hover:shadow-orange-500/15',
-        accentColor: 'text-orange-600 dark:text-orange-400',
-        icon: '🍜',
-      };
-    case 'Minuman, Kopi & Susu':
-      return {
-        gradientBar: 'from-sky-500 via-blue-500 to-cyan-500',
-        badgeBg: 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30',
-        cardBorderHover: 'hover:border-sky-500/70 hover:shadow-sky-500/15',
-        accentColor: 'text-sky-600 dark:text-sky-400',
-        icon: '☕',
-      };
-    case 'Makanan Ringan / Snack':
-      return {
-        gradientBar: 'from-fuchsia-500 via-pink-500 to-rose-500',
-        badgeBg: 'bg-fuchsia-500/15 text-fuchsia-700 dark:text-pink-300 border-fuchsia-500/30',
-        cardBorderHover: 'hover:border-fuchsia-500/70 hover:shadow-fuchsia-500/15',
-        accentColor: 'text-fuchsia-600 dark:text-pink-400',
-        icon: '🍿',
-      };
-    case 'Sabun, Cuci & Kebersihan':
-      return {
-        gradientBar: 'from-emerald-500 via-teal-500 to-cyan-600',
-        badgeBg: 'bg-teal-500/15 text-teal-700 dark:text-teal-300 border-teal-500/30',
-        cardBorderHover: 'hover:border-teal-500/70 hover:shadow-teal-500/15',
-        accentColor: 'text-teal-600 dark:text-teal-400',
-        icon: '🧼',
-      };
-    case 'Perawatan & Obat Ringan':
-      return {
-        gradientBar: 'from-indigo-500 via-purple-500 to-pink-500',
-        badgeBg: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
-        cardBorderHover: 'hover:border-indigo-500/70 hover:shadow-indigo-500/15',
-        accentColor: 'text-indigo-600 dark:text-indigo-400',
-        icon: '💊',
-      };
-    case 'Rokok & Korek':
-      return {
-        gradientBar: 'from-slate-600 via-zinc-700 to-neutral-800',
-        badgeBg: 'bg-slate-500/15 text-slate-700 dark:text-slate-300 border-slate-500/30',
-        cardBorderHover: 'hover:border-slate-500/70 hover:shadow-slate-500/15',
-        accentColor: 'text-slate-700 dark:text-slate-300',
-        icon: '🚬',
-      };
-    case 'Gas LPG & Galon Air':
-      return {
-        gradientBar: 'from-blue-600 via-indigo-600 to-cyan-500',
-        badgeBg: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30',
-        cardBorderHover: 'hover:border-blue-500/70 hover:shadow-blue-500/15',
-        accentColor: 'text-blue-600 dark:text-blue-400',
-        icon: '🔥',
-      };
-    case 'Plastik, Baterai & Lainnya':
-    default:
-      return {
-        gradientBar: 'from-purple-600 via-fuchsia-600 to-pink-600',
-        badgeBg: 'bg-purple-500/15 text-purple-700 dark:text-pink-300 border-purple-500/30',
-        cardBorderHover: 'hover:border-purple-500/70 hover:shadow-purple-500/15',
-        accentColor: 'text-purple-600 dark:text-pink-400',
-        icon: '📦',
-      };
-  }
+const CATEGORY_ICONS: Record<string, string> = {
+  'Sembako & Beras': '🌾',
+  'Minyak & Bumbu': '🍳',
+  'Mie & Makanan Instan': '🍜',
+  'Minuman, Kopi & Susu': '☕',
+  'Makanan Ringan / Snack': '🍿',
+  'Sabun, Cuci & Kebersihan': '🧼',
+  'Perawatan & Obat Ringan': '💊',
+  'Rokok & Korek': '🚬',
+  'Gas LPG & Galon Air': '🔥',
+  'Plastik, Baterai & Lainnya': '📦',
 };
 
 interface CashierViewProps {
@@ -166,6 +94,10 @@ export const CashierView: React.FC<CashierViewProps> = ({
   const [showDiscountInput, setShowDiscountInput] = useState<boolean>(false);
   const [selectedCartIds, setSelectedCartIds] = useState<string[]>([]);
   const [scanToast, setScanToast] = useState<string | null>(null);
+  const [isMobileCartDrawerOpen, setIsMobileCartDrawerOpen] = useState(false);
+
+  // Search input ref for F2 shortcut
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   // Quick Register Modal State for Unrecognized Packaging Barcodes
   const [isQuickRegisterOpen, setIsQuickRegisterOpen] = useState(false);
@@ -204,7 +136,7 @@ export const CashierView: React.FC<CashierViewProps> = ({
     setSelectedCartIds([]);
   };
 
-  // Filter products by category and query (name / barcode / category)
+  // Filter products by category and query
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
       if (!p.isActive) return false;
@@ -318,7 +250,7 @@ export const CashierView: React.FC<CashierViewProps> = ({
     }
   };
 
-  // Hold current cart (Simpan Antrian)
+  // Hold current cart
   const handleHoldCart = () => {
     if (cart.length === 0) return;
     const name =
@@ -353,7 +285,81 @@ export const CashierView: React.FC<CashierViewProps> = ({
     sound.playSuccess();
   };
 
-  // Hardware Scanner Gun Listener (USB / Bluetooth Barcode Scanners)
+  // Totals calculations
+  const subtotal = useMemo(() => {
+    return cart.reduce((acc, item) => acc + item.subtotal, 0);
+  }, [cart]);
+
+  const grandTotal = Math.max(0, subtotal - cartDiscount);
+
+  const totalCost = useMemo(() => {
+    return cart.reduce((acc, item) => acc + item.product.buyPrice * item.quantity, 0);
+  }, [cart]);
+
+  const totalItemCount = useMemo(() => {
+    return cart.reduce((acc, item) => acc + item.quantity, 0);
+  }, [cart]);
+
+  // Barcode scanned handler
+  const handleBarcodeScanned = (barcode: string) => {
+    const clean = barcode.trim();
+    if (!clean) return;
+
+    const found = products.find(
+      (p) =>
+        p.barcode === clean ||
+        p.barcode.endsWith(clean) ||
+        clean.endsWith(p.barcode)
+    );
+
+    if (found) {
+      handleAddToCart(found, 1);
+      setScanToast(`+1 ${found.name} (${formatRupiah(found.sellPrice)}) masuk keranjang`);
+      setTimeout(() => setScanToast(null), 3000);
+      sound.playBeep(880, 0.08);
+    } else {
+      sound.playError();
+      setQuickRegisterBarcode(clean);
+      setQuickName('');
+      setQuickBuyPrice(0);
+      setQuickSellPrice(0);
+      setQuickStock(20);
+      setQuickUnit('pcs');
+      setIsQuickRegisterOpen(true);
+    }
+  };
+
+  // Keyboard Shortcuts: F2 (Search), F4 (Scanner), F8 (Hold), F9 (Checkout)
+  useEffect(() => {
+    const handleGlobalShortcuts = (e: KeyboardEvent) => {
+      // Don't trigger if modal is open (except ESC)
+      if (isCheckoutOpen || isScannerOpen || isQuickRegisterOpen) {
+        return;
+      }
+
+      if (e.key === 'F2') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+      } else if (e.key === 'F4') {
+        e.preventDefault();
+        setIsScannerOpen(true);
+      } else if (e.key === 'F8') {
+        e.preventDefault();
+        handleHoldCart();
+      } else if (e.key === 'F9') {
+        e.preventDefault();
+        if (cart.length > 0) {
+          setIsCheckoutOpen(true);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalShortcuts);
+    return () => window.removeEventListener('keydown', handleGlobalShortcuts);
+  }, [cart, isCheckoutOpen, isScannerOpen, isQuickRegisterOpen]);
+
+  // Hardware Scanner Gun Listener
   const keyBufferRef = useRef<string>('');
   const lastKeyTimeRef = useRef<number>(0);
 
@@ -382,7 +388,6 @@ export const CashierView: React.FC<CashierViewProps> = ({
         return;
       }
 
-      // Barcode characters (digits and letters)
       if (e.key.length === 1) {
         if (timeDiff > 100) {
           if (!isInputFocused) {
@@ -399,35 +404,6 @@ export const CashierView: React.FC<CashierViewProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [products, cart]);
-
-  // Barcode scanned handler (from camera, hardware scanner, or simulation)
-  const handleBarcodeScanned = (barcode: string) => {
-    const clean = barcode.trim();
-    if (!clean) return;
-
-    const found = products.find(
-      (p) =>
-        p.barcode === clean ||
-        p.barcode.endsWith(clean) ||
-        clean.endsWith(p.barcode)
-    );
-
-    if (found) {
-      handleAddToCart(found, 1);
-      setScanToast(`+1 ${found.name} (${formatRupiah(found.sellPrice)}) otomatis masuk keranjang!`);
-      setTimeout(() => setScanToast(null), 3000);
-      sound.playBeep(880, 0.08);
-    } else {
-      sound.playError();
-      setQuickRegisterBarcode(clean);
-      setQuickName('');
-      setQuickBuyPrice(0);
-      setQuickSellPrice(0);
-      setQuickStock(20);
-      setQuickUnit('pcs');
-      setIsQuickRegisterOpen(true);
-    }
-  };
 
   // Quick Register Product Form Submit
   const handleQuickRegisterSubmit = (e: React.FormEvent) => {
@@ -452,12 +428,11 @@ export const CashierView: React.FC<CashierViewProps> = ({
     onSaveProduct?.(newProd);
     handleAddToCart(newProd, 1);
     setIsQuickRegisterOpen(false);
-    setScanToast(`✓ +1 ${newProd.name} berhasil didaftarkan & masuk ke keranjang!`);
+    setScanToast(`✓ +1 ${newProd.name} didaftarkan & masuk keranjang!`);
     setTimeout(() => setScanToast(null), 3500);
     sound.playSuccess();
   };
 
-  // Search input Enter key handler
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
       e.preventDefault();
@@ -471,92 +446,72 @@ export const CashierView: React.FC<CashierViewProps> = ({
       if (found) {
         handleAddToCart(found, 1);
         setSearchQuery('');
-        setScanToast(`+1 ${found.name} otomatis masuk ke keranjang!`);
+        setScanToast(`+1 ${found.name} masuk keranjang`);
         setTimeout(() => setScanToast(null), 2500);
         sound.playSuccess();
       }
     }
   };
 
-  // Totals calculations
-  const subtotal = useMemo(() => {
-    return cart.reduce((acc, item) => acc + item.subtotal, 0);
-  }, [cart]);
-
-  const grandTotal = Math.max(0, subtotal - cartDiscount);
-
-  const totalCost = useMemo(() => {
-    return cart.reduce((acc, item) => acc + item.product.buyPrice * item.quantity, 0);
-  }, [cart]);
-
   return (
-    <div id="cashier-pos-container" className="max-w-7xl mx-auto space-y-4 relative">
-      {/* Floating Scan Toast Notification */}
+    <div id="cashier-pos-container" className="max-w-7xl mx-auto space-y-3 relative pb-24 lg:pb-8">
+      {/* Toast Notification */}
       {scanToast && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white px-5 py-2.5 rounded-2xl shadow-2xl font-black text-xs sm:text-sm flex items-center gap-2 border border-emerald-400 animate-in fade-in slide-in-from-top-4 duration-200">
-          <CheckCircle2 className="w-5 h-5 text-emerald-200 shrink-0" />
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-zinc-900 text-white px-5 py-2.5 rounded-xl shadow-2xl font-bold text-xs sm:text-sm flex items-center gap-2 border border-zinc-700 animate-in fade-in slide-in-from-top-4 duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{scanToast}</span>
         </div>
       )}
 
-      {/* Top Action Bar: Search, Barcode button & Held carts */}
-      <div className="flex flex-col md:flex-row gap-3 mb-4">
-        {/* Search Bar & Barcode Scanner Button */}
-        <div className="flex-1 flex gap-2">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
-            <input
-              id="input-pos-product-search"
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-              placeholder="Cari nama produk atau scan barcode kemasan di sini..."
-              className={`w-full pl-10 pr-8 py-2.5 rounded-xl border text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all ${
-                darkMode
-                  ? 'bg-slate-900/90 border-slate-800 text-slate-100 placeholder-slate-500 focus:border-purple-500'
-                  : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 shadow-xs'
-              }`}
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-slate-200 font-bold cursor-pointer"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          <button
-            id="btn-open-barcode-scanner"
-            type="button"
-            onClick={() => setIsScannerOpen(true)}
-            className="px-3.5 sm:px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-xl flex items-center gap-2 font-bold text-xs shadow-md shadow-purple-600/20 active:scale-95 transition-all shrink-0 cursor-pointer"
-            title="Scan Barcode dari Kemasan Produk"
-          >
-            <Scan className="w-4 h-4 text-pink-200" />
-            <div className="text-left leading-tight">
-              <div>Scan Kemasan</div>
-              <div className="text-[9px] text-pink-200 font-normal hidden sm:block">Otomatis Masuk Keranjang</div>
-            </div>
-          </button>
+      {/* Top Search & Scanner Action Bar */}
+      <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
+        {/* Search Input */}
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+          <input
+            ref={searchInputRef}
+            id="input-pos-product-search"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            placeholder="Cari nama barang atau scan barcode kemasan... (Tekan F2)"
+            className="w-full pl-10 pr-16 py-2.5 rounded-xl border text-xs sm:text-sm font-medium bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all shadow-xs"
+          />
+          <kbd className="hidden sm:inline-block absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] font-mono text-zinc-400 border border-zinc-200 dark:border-zinc-700 rounded bg-zinc-50 dark:bg-zinc-800">
+            F2
+          </kbd>
         </div>
 
-        {/* Held Carts (Simpan Antrian) Quick Pill */}
+        {/* Scan Camera Button */}
+        <button
+          id="btn-pos-open-scanner"
+          type="button"
+          onClick={() => setIsScannerOpen(true)}
+          className="px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-800 text-white hover:bg-zinc-800 dark:hover:bg-zinc-700 border border-zinc-700 text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer shrink-0"
+          title="Buka Kamera Barcode Scanner (F4)"
+        >
+          <Scan className="w-4 h-4 text-amber-400" />
+          <span>Pindai Kamera</span>
+          <kbd className="hidden md:inline px-1 text-[10px] font-mono text-zinc-400 border border-zinc-700 rounded">
+            F4
+          </kbd>
+        </button>
+
+        {/* Held Carts / Antrian Indicator */}
         {heldCarts.length > 0 && (
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 shrink-0">
-            <span className="text-xs font-bold text-amber-500 flex items-center gap-1">
-              <PauseCircle className="w-4 h-4" />
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            <span className="text-[11px] font-bold text-amber-500 flex items-center gap-1 shrink-0 font-mono">
+              <PauseCircle className="w-3.5 h-3.5" />
               <span>Antrian:</span>
             </span>
             {heldCarts.map((h) => (
               <button
                 key={h.id}
                 onClick={() => handleRestoreCart(h)}
-                className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-300 text-xs font-bold flex items-center gap-1.5 hover:bg-amber-500/20 transition-colors shrink-0 cursor-pointer"
+                className="px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-amber-400 text-xs font-bold flex items-center gap-1 hover:bg-zinc-800 transition-colors shrink-0 cursor-pointer font-mono"
               >
-                <PlayCircle className="w-3.5 h-3.5" />
+                <PlayCircle className="w-3 h-3 text-emerald-400" />
                 <span>{h.name} ({h.items.length})</span>
               </button>
             ))}
@@ -564,11 +519,11 @@ export const CashierView: React.FC<CashierViewProps> = ({
         )}
       </div>
 
-      {/* Category Chips Scrollbar */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-thin">
+      {/* Category Segmented Filter Tabs */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
         {CATEGORIES.map((cat) => {
           const isSelected = selectedCategory === cat;
-          const style = getCategoryStyle(cat);
+          const icon = cat === 'ALL' ? '🌟' : CATEGORY_ICONS[cat] || '📦';
           return (
             <button
               key={cat}
@@ -578,39 +533,38 @@ export const CashierView: React.FC<CashierViewProps> = ({
                 sound.playBeep(600, 0.03);
                 setSelectedCategory(cat);
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
                 isSelected
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white border-transparent shadow-md shadow-purple-500/20'
-                  : darkMode
-                  ? 'bg-slate-900/80 border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white'
-                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100 shadow-2xs'
+                  ? 'bg-amber-500 text-zinc-950 border-amber-500 shadow-sm'
+                  : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
               }`}
             >
-              {cat === 'ALL' ? '🌟 Semua Kategori' : `${style.icon} ${cat}`}
+              <span>{icon}</span>{' '}
+              <span>{cat === 'ALL' ? 'Semua Kategori' : cat}</span>
             </button>
           );
         })}
       </div>
 
-      {/* Main Grid: Left Products Catalog, Right Cart */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left Side: Product Grid (7-8 cols on desktop) */}
-        <div className="lg:col-span-7 xl:col-span-8">
-          <div className="flex items-center justify-between mb-2.5">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black tracking-wider uppercase bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent dark:from-purple-400 dark:to-pink-400 font-mono">
-                KATALOG BARANG TOKO ({filteredProducts.length})
-              </span>
-            </div>
-            <span className="text-xs text-slate-400">Klik kartu barang untuk tambah ke keranjang</span>
+      {/* Main Split Screen: Left Catalog (7-8 cols), Right Cart (4-5 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Left Side: Product Grid */}
+        <div className="lg:col-span-7 xl:col-span-8 space-y-2">
+          <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="font-bold uppercase tracking-wider font-mono text-[11px]">
+              Katalog Produk ({filteredProducts.length})
+            </span>
+            <span className="hidden sm:inline text-[11px]">
+              Klik barang untuk menambah ke struk belanja
+            </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 max-h-[calc(100vh-270px)] overflow-y-auto pr-1">
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5 max-h-[calc(100vh-250px)] overflow-y-auto pr-1">
             {filteredProducts.map((product) => {
               const inCartItem = cart.find((i) => i.product.id === product.id);
               const isLowStock = product.stock <= product.minStock;
               const isOutOfStock = product.stock <= 0;
-              const catStyle = getCategoryStyle(product.category);
+              const icon = CATEGORY_ICONS[product.category] || '📦';
 
               return (
                 <button
@@ -619,38 +573,33 @@ export const CashierView: React.FC<CashierViewProps> = ({
                   type="button"
                   onClick={() => handleAddToCart(product, 1)}
                   disabled={isOutOfStock}
-                  className={`group text-left rounded-2xl border transition-all duration-200 relative flex flex-col justify-between overflow-hidden cursor-pointer shadow-xs hover:shadow-lg ${
+                  className={`group text-left p-3 rounded-xl border transition-all duration-150 relative flex flex-col justify-between overflow-hidden cursor-pointer shadow-2xs ${
                     isOutOfStock
-                      ? 'opacity-40 grayscale cursor-not-allowed bg-slate-100 dark:bg-slate-900 border-slate-300 dark:border-slate-800'
-                      : darkMode
-                      ? `bg-slate-900/90 border-slate-800/90 ${catStyle.cardBorderHover} hover:bg-slate-850 active:scale-[0.98] text-slate-100`
-                      : `bg-white border-slate-200 ${catStyle.cardBorderHover} hover:border-pink-300 active:scale-[0.98] text-slate-800`
+                      ? 'opacity-40 grayscale cursor-not-allowed bg-zinc-100 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800'
+                      : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-amber-500/60 dark:hover:border-amber-400 active:scale-[0.98]'
                   }`}
                 >
-                  {/* Top Colorful Accent Strip */}
-                  <div className={`h-1.5 w-full bg-gradient-to-r ${catStyle.gradientBar}`} />
-
-                  {/* Cart badge if already in cart */}
+                  {/* Cart badge if item is in cart */}
                   {inCartItem && (
-                    <div className="absolute top-2.5 right-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-black text-xs w-6 h-6 rounded-lg flex items-center justify-center shadow-md border-2 border-white dark:border-slate-900 font-mono z-10 animate-scale">
+                    <div className="absolute top-2 right-2 bg-amber-500 text-zinc-950 font-black text-xs w-6 h-6 rounded-md flex items-center justify-center shadow-xs font-mono z-10">
                       {inCartItem.quantity}
                     </div>
                   )}
 
-                  <div className="p-3">
-                    {/* Category pill with Icon & Stock badge */}
-                    <div className="flex items-center justify-between text-[10px] mb-2 gap-1">
-                      <span className={`inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-md border text-[10px] truncate max-w-[110px] ${catStyle.badgeBg}`}>
-                        <span>{catStyle.icon}</span>
+                  <div>
+                    {/* Quiet Metadata Header: Category & Stock */}
+                    <div className="flex items-center justify-between text-[11px] text-zinc-400 mb-1.5 gap-1">
+                      <span className="truncate flex items-center gap-1 text-zinc-500 dark:text-zinc-400">
+                        <span>{icon}</span>
                         <span className="truncate">{product.category.split('&')[0]}</span>
                       </span>
                       <span
-                        className={`font-semibold px-1.5 py-0.5 rounded-md text-[10px] font-mono shrink-0 ${
+                        className={`font-mono text-[10px] font-semibold shrink-0 ${
                           isOutOfStock
-                            ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'
+                            ? 'text-rose-500'
                             : isLowStock
-                            ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30'
-                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60'
+                            ? 'text-amber-500'
+                            : 'text-zinc-400'
                         }`}
                       >
                         {isOutOfStock ? 'Habis' : `Stok: ${product.stock}`}
@@ -658,25 +607,23 @@ export const CashierView: React.FC<CashierViewProps> = ({
                     </div>
 
                     {/* Product Name */}
-                    <h3 className="font-bold text-xs sm:text-sm line-clamp-2 leading-snug group-hover:text-purple-600 dark:group-hover:text-pink-400 transition-colors">
+                    <h3 className="font-bold text-xs sm:text-sm line-clamp-2 leading-snug text-zinc-900 dark:text-zinc-100 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">
                       {product.name}
                     </h3>
                   </div>
 
-                  {/* Price & Barcode Footer */}
-                  <div className="p-3 pt-0 mt-auto">
-                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-end justify-between">
-                      <div>
-                        <div className="text-[10px] text-slate-400 font-mono tracking-tight">
-                          #{product.barcode.slice(-6)}
-                        </div>
-                        <div className="font-black text-sm sm:text-base bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent font-numeric">
-                          {formatRupiah(product.sellPrice)}
-                        </div>
+                  {/* Price & Add Footer */}
+                  <div className="pt-2.5 mt-2 border-t border-zinc-100 dark:border-zinc-800/80 flex items-end justify-between">
+                    <div>
+                      <div className="text-[10px] text-zinc-400 font-mono">
+                        #{product.barcode.slice(-6)}
                       </div>
-                      <div className="w-7 h-7 rounded-lg bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-600 dark:text-pink-400 border border-purple-500/20 flex items-center justify-center group-hover:from-purple-600 group-hover:to-pink-600 group-hover:text-white transition-all shadow-2xs">
-                        <Plus className="w-4 h-4" />
+                      <div className="font-black text-sm sm:text-base text-zinc-900 dark:text-zinc-100 font-numeric font-mono">
+                        {formatRupiah(product.sellPrice)}
                       </div>
+                    </div>
+                    <div className="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-zinc-950 group-hover:border-amber-500 transition-colors">
+                      <Plus className="w-4 h-4" />
                     </div>
                   </div>
                 </button>
@@ -685,40 +632,36 @@ export const CashierView: React.FC<CashierViewProps> = ({
           </div>
         </div>
 
-        {/* Right Side: Cart & Checkout Summary (4-5 cols on desktop) */}
-        <div className="lg:col-span-5 xl:col-span-4 flex flex-col">
+        {/* Right Side: Cart & Checkout Summary (Desktop sticky panel) */}
+        <div className="hidden lg:flex lg:col-span-5 xl:col-span-4 flex-col">
           <div
             id="pos-cart-panel"
-            className={`rounded-2xl border shadow-xl flex flex-col min-h-[500px] lg:h-[calc(100vh-140px)] sticky top-2 ${
-              darkMode
-                ? 'bg-slate-900/90 border-slate-800 text-slate-100'
-                : 'bg-white border-slate-200 text-slate-800'
-            }`}
+            className="rounded-2xl border shadow-xl flex flex-col min-h-[500px] h-[calc(100vh-140px)] sticky top-2 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100"
           >
             {/* Cart Header */}
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50 rounded-t-2xl">
-              <div className="flex items-center gap-2.5">
+            <div className="p-3.5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-zinc-950/60 rounded-t-2xl">
+              <div className="flex items-center gap-2">
                 {cart.length > 0 && (
                   <button
                     type="button"
                     onClick={toggleSelectAllCart}
-                    title={isAllCartSelected ? 'Batalkan Semua Pilihan Keranjang' : 'Centang Semua Item Keranjang'}
-                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                    title={isAllCartSelected ? 'Batalkan Semua Pilihan' : 'Centang Semua Item'}
+                    className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 cursor-pointer"
                   >
                     {isAllCartSelected ? (
-                      <CheckSquare className="w-4 h-4 text-pink-500" />
+                      <CheckSquare className="w-4 h-4 text-amber-500" />
                     ) : (
-                      <Square className="w-4 h-4 text-slate-400" />
+                      <Square className="w-4 h-4 text-zinc-400" />
                     )}
                   </button>
                 )}
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 text-white flex items-center justify-center shadow-xs">
+                <div className="w-7 h-7 rounded-lg bg-zinc-900 text-amber-400 border border-zinc-700 flex items-center justify-center">
                   <ShoppingBag className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="font-extrabold text-sm tracking-tight">Keranjang Kasir</h2>
-                  <p className="text-[11px] text-slate-500 font-mono">
-                    {cart.length} macam barang ({cart.reduce((s, i) => s + i.quantity, 0)} total)
+                  <h2 className="font-extrabold text-xs sm:text-sm tracking-tight">Keranjang Struk</h2>
+                  <p className="text-[10px] text-zinc-500 font-mono">
+                    {cart.length} barang · {totalItemCount} pcs
                   </p>
                 </div>
               </div>
@@ -729,10 +672,9 @@ export const CashierView: React.FC<CashierViewProps> = ({
                     id="btn-bulk-remove-cart"
                     type="button"
                     onClick={handleBulkRemoveFromCart}
-                    title={`Hapus ${selectedCartIds.length} item yang dicentang`}
-                    className="px-2.5 py-1.5 rounded-lg bg-rose-500/15 text-rose-600 hover:bg-rose-500/25 dark:text-rose-400 text-xs font-bold flex items-center gap-1 border border-rose-500/30 transition-all cursor-pointer"
+                    className="px-2 py-1 rounded-lg bg-rose-500/10 text-rose-500 text-xs font-bold border border-rose-500/20 hover:bg-rose-500/20 cursor-pointer"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-3.5 h-3.5 inline mr-1" />
                     <span>Hapus ({selectedCartIds.length})</span>
                   </button>
                 )}
@@ -742,18 +684,18 @@ export const CashierView: React.FC<CashierViewProps> = ({
                       id="btn-hold-cart"
                       type="button"
                       onClick={handleHoldCart}
-                      title="Simpan Antrian (Park Order)"
-                      className="px-2.5 py-1.5 rounded-lg text-amber-500 hover:bg-amber-500/10 text-xs font-bold flex items-center gap-1 border border-transparent hover:border-amber-500/20 transition-all cursor-pointer"
+                      title="Simpan Antrian (F8)"
+                      className="px-2 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-bold border border-zinc-200 dark:border-zinc-700 hover:text-amber-400 cursor-pointer"
                     >
-                      <PauseCircle className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Antrian</span>
+                      <PauseCircle className="w-3.5 h-3.5 inline mr-1" />
+                      <span>Antrian</span>
                     </button>
                     <button
                       id="btn-clear-cart"
                       type="button"
                       onClick={handleClearCart}
                       title="Kosongkan Keranjang"
-                      className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all cursor-pointer"
+                      className="p-1 rounded-lg text-rose-500 hover:bg-rose-500/10 cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -763,13 +705,13 @@ export const CashierView: React.FC<CashierViewProps> = ({
             </div>
 
             {/* Cart Items List */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-2.5 divide-y divide-slate-100 dark:divide-slate-800/60">
+            <div className="flex-1 overflow-y-auto p-3 space-y-2 divide-y divide-zinc-100 dark:divide-zinc-800/60">
               {cart.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400">
-                  <Package className="w-12 h-12 mb-2 stroke-[1.2] text-slate-300 dark:text-slate-700" />
-                  <p className="text-xs font-bold text-slate-600 dark:text-slate-400">Keranjang masih kosong</p>
-                  <p className="text-[11px] text-slate-400 mt-1 max-w-[200px]">
-                    Klik barang di sebelah kiri atau gunakan scan barcode untuk menambahkan barang belanjaan.
+                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-zinc-400">
+                  <Package className="w-10 h-10 mb-2 stroke-[1.2] text-zinc-300 dark:text-zinc-700" />
+                  <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Keranjang Masih Kosong</p>
+                  <p className="text-[11px] text-zinc-400 mt-1 max-w-[200px]">
+                    Klik barang pada katalog atau scan barcode kemasan untuk menambah belanjaan.
                   </p>
                 </div>
               ) : (
@@ -778,8 +720,8 @@ export const CashierView: React.FC<CashierViewProps> = ({
                   return (
                     <div
                       key={item.product.id}
-                      className={`pt-2.5 first:pt-0 p-1.5 rounded-xl transition-colors ${
-                        isChecked ? 'bg-purple-500/10 dark:bg-purple-500/15' : ''
+                      className={`pt-2 first:pt-0 p-1.5 rounded-lg transition-colors ${
+                        isChecked ? 'bg-amber-500/10' : ''
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
@@ -787,39 +729,37 @@ export const CashierView: React.FC<CashierViewProps> = ({
                           <button
                             type="button"
                             onClick={() => toggleSelectCartItem(item.product.id)}
-                            title="Centang item ini"
-                            className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer shrink-0"
+                            className="p-0.5 rounded text-zinc-400 hover:text-zinc-600 cursor-pointer"
                           >
                             {isChecked ? (
-                              <CheckSquare className="w-4 h-4 text-pink-500" />
+                              <CheckSquare className="w-3.5 h-3.5 text-amber-500" />
                             ) : (
-                              <Square className="w-4 h-4 text-slate-400" />
+                              <Square className="w-3.5 h-3.5" />
                             )}
                           </button>
                           <div className="min-w-0 flex-1">
-                            <h4 className="font-bold text-xs truncate">{item.product.name}</h4>
-                            <div className="text-[11px] text-slate-500 font-mono mt-0.5 flex items-center gap-1.5">
-                              <span>
-                                {formatRupiah(item.product.sellPrice)} / {item.product.unit}
-                              </span>
+                            <h4 className="font-bold text-xs truncate text-zinc-900 dark:text-zinc-100">
+                              {item.product.name}
+                            </h4>
+                            <div className="text-[10px] text-zinc-400 font-mono">
+                              {formatRupiah(item.product.sellPrice)} / {item.product.unit}
                             </div>
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <div className="font-black text-xs bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent dark:from-purple-400 dark:to-pink-400 font-numeric">
+                          <div className="font-bold text-xs font-mono font-numeric text-zinc-900 dark:text-zinc-100">
                             {formatRupiah(item.subtotal)}
                           </div>
                         </div>
                       </div>
 
                       {/* Quantity Stepper & Direct Input */}
-                      <div className="flex items-center justify-between mt-2">
-                        {/* Standard Quantity Stepper */}
-                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 rounded-xl p-1 border border-slate-200 dark:border-slate-800">
+                      <div className="flex items-center justify-between mt-1.5">
+                        <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-950 rounded-lg p-0.5 border border-zinc-200 dark:border-zinc-800">
                           <button
                             type="button"
                             onClick={() => handleUpdateQty(item.product.id, -1)}
-                            className="w-6 h-6 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center shadow-2xs hover:bg-slate-200 transition-colors cursor-pointer"
+                            className="w-6 h-6 flex items-center justify-center rounded text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer"
                           >
                             <Minus className="w-3 h-3" />
                           </button>
@@ -829,43 +769,27 @@ export const CashierView: React.FC<CashierViewProps> = ({
                             max={item.product.stock}
                             value={item.quantity}
                             onChange={(e) =>
-                              handleDirectQtyChange(item.product.id, parseInt(e.target.value) || 1)
+                              handleDirectQtyChange(item.product.id, Number(e.target.value))
                             }
-                            className="w-10 text-center font-black text-xs font-mono bg-transparent focus:outline-none"
+                            className="w-10 text-center font-bold text-xs bg-transparent focus:outline-none font-mono"
                           />
                           <button
                             type="button"
                             onClick={() => handleUpdateQty(item.product.id, 1)}
-                            className="w-6 h-6 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center shadow-2xs hover:bg-slate-200 transition-colors cursor-pointer"
+                            className="w-6 h-6 flex items-center justify-center rounded text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer"
                           >
                             <Plus className="w-3 h-3" />
                           </button>
                         </div>
 
-                        {/* Quick Multipliers (+5, +10) & Delete */}
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => handleAddToCart(item.product, 5)}
-                            className="px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-mono transition-colors cursor-pointer"
-                          >
-                            +5
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleAddToCart(item.product, 10)}
-                            className="px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-mono transition-colors cursor-pointer"
-                          >
-                            +10
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveItem(item.product.id)}
-                            className="p-1 text-slate-400 hover:text-rose-500 ml-1 transition-colors cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveItem(item.product.id)}
+                          className="p-1 text-zinc-400 hover:text-rose-500 transition-colors cursor-pointer"
+                          title="Hapus dari keranjang"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   );
@@ -873,59 +797,64 @@ export const CashierView: React.FC<CashierViewProps> = ({
               )}
             </div>
 
-            {/* Cart Footer: Subtotal, Discount & Big Bayar Button */}
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 rounded-b-2xl space-y-3">
-              {/* Calculations summary */}
-              <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between text-slate-500 dark:text-slate-400">
+            {/* Cart Summary & Massive Checkout Button */}
+            <div className="p-3.5 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 rounded-b-2xl space-y-2.5">
+              <div className="space-y-1.5 text-xs font-mono">
+                <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
                   <span>Subtotal</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 font-numeric">{formatRupiah(subtotal)}</span>
+                  <span className="font-bold text-zinc-800 dark:text-zinc-200 font-numeric">
+                    {formatRupiah(subtotal)}
+                  </span>
                 </div>
 
                 {/* Optional Global Discount */}
                 {showDiscountInput ? (
-                  <div className="flex items-center gap-2 pt-1">
-                    <span className="text-[11px] text-slate-500">Diskon (Rp):</span>
+                  <div className="flex items-center gap-2 pt-0.5">
+                    <span className="text-[11px] text-zinc-500">Diskon (Rp):</span>
                     <input
                       type="number"
                       value={cartDiscount || ''}
                       onChange={(e) => setCartDiscount(Math.max(0, Number(e.target.value)))}
                       placeholder="0"
-                      className="w-24 px-2 py-1 rounded-lg border text-xs text-right font-bold focus:outline-none focus:ring-1 focus:ring-purple-500 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 font-mono"
+                      className="w-24 px-2 py-1 rounded border text-xs text-right font-bold focus:outline-none focus:ring-1 focus:ring-amber-500 bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 font-mono"
                     />
                     <button
                       type="button"
                       onClick={() => setShowDiscountInput(false)}
-                      className="text-xs text-slate-400 hover:text-slate-200 cursor-pointer"
+                      className="text-xs text-zinc-400 hover:text-zinc-200 cursor-pointer"
                     >
                       ✕
                     </button>
                   </div>
                 ) : (
-                  <div className="flex justify-between items-center text-slate-500">
+                  <div className="flex justify-between items-center text-zinc-500">
                     <button
                       type="button"
                       onClick={() => setShowDiscountInput(true)}
-                      className="text-[11px] text-purple-600 dark:text-pink-400 font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                      className="text-[11px] text-amber-600 dark:text-amber-400 font-bold hover:underline flex items-center gap-1 cursor-pointer"
                     >
                       <Tag className="w-3 h-3" />
                       <span>+ Beri Potongan / Diskon</span>
                     </button>
                     {cartDiscount > 0 && (
-                      <span className="font-bold text-rose-500 font-numeric">-{formatRupiah(cartDiscount)}</span>
+                      <span className="font-bold text-rose-500 font-numeric">
+                        -{formatRupiah(cartDiscount)}
+                      </span>
                     )}
                   </div>
                 )}
 
-                <div className="border-t border-slate-200 dark:border-slate-800 pt-2 flex justify-between items-baseline">
-                  <span className="font-extrabold text-sm tracking-tight text-slate-800 dark:text-slate-200">TOTAL BAYAR</span>
-                  <span className="font-black text-xl sm:text-2xl bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent font-numeric">
+                <div className="border-t border-zinc-200 dark:border-zinc-800 pt-2 flex justify-between items-baseline">
+                  <span className="font-extrabold text-sm tracking-tight text-zinc-800 dark:text-zinc-200">
+                    TOTAL BAYAR
+                  </span>
+                  <span className="font-black text-xl sm:text-2xl text-amber-500 dark:text-amber-400 font-numeric">
                     {formatRupiah(grandTotal)}
                   </span>
                 </div>
               </div>
 
-              {/* Big Checkout Action Button */}
+              {/* Big Ergonomic Checkout Button */}
               <button
                 id="btn-open-checkout"
                 type="button"
@@ -935,15 +864,158 @@ export const CashierView: React.FC<CashierViewProps> = ({
                   setIsCheckoutOpen(true);
                 }}
                 disabled={cart.length === 0}
-                className="w-full py-3.5 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 hover:from-purple-500 hover:via-fuchsia-500 hover:to-pink-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-sm sm:text-base rounded-xl shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 transition-all active:scale-98 tracking-wide cursor-pointer"
+                className="w-full py-3.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 transition-all active:scale-98 tracking-wide cursor-pointer"
               >
                 <span>BAYAR SEKARANG</span>
-                <ArrowRight className="w-5 h-5" />
+                <span className="text-xs font-mono opacity-80">(F9)</span>
+                <ArrowRight className="w-4 h-4 ml-1" />
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Floating Bottom Bar for Mobile / HP (Pinned above mobile nav) */}
+      {cart.length > 0 && (
+        <div
+          id="mobile-cart-floating-bar"
+          className="lg:hidden fixed bottom-14 left-0 right-0 z-30 p-2.5 bg-zinc-950 border-t border-zinc-800 shadow-2xl flex items-center justify-between gap-2 safe-bottom animate-in slide-in-from-bottom-2 duration-150"
+        >
+          <button
+            type="button"
+            onClick={() => setIsMobileCartDrawerOpen(true)}
+            className="flex items-center gap-2 text-left min-w-0 flex-1 cursor-pointer"
+          >
+            <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 text-amber-400 flex items-center justify-center shrink-0">
+              <ShoppingBag className="w-4 h-4" />
+            </div>
+            <div className="truncate">
+              <div className="text-[10px] text-zinc-400 font-mono">
+                {totalItemCount} barang di keranjang
+              </div>
+              <div className="font-black text-sm text-amber-400 font-mono font-numeric leading-tight">
+                {formatRupiah(grandTotal)}
+              </div>
+            </div>
+            <ChevronUp className="w-4 h-4 text-zinc-400 ml-1" />
+          </button>
+
+          <button
+            id="mobile-btn-quick-checkout"
+            type="button"
+            onClick={() => setIsCheckoutOpen(true)}
+            className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs flex items-center gap-1.5 shadow-md shrink-0 cursor-pointer active:scale-95"
+          >
+            <span>Bayar (F9)</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Mobile Cart Slide-up Sheet / Drawer */}
+      {isMobileCartDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/70 backdrop-blur-xs lg:hidden animate-in fade-in duration-150">
+          <div className="bg-zinc-900 border-t border-zinc-800 rounded-t-3xl max-h-[85vh] flex flex-col overflow-hidden text-zinc-100 shadow-2xl animate-in slide-in-from-bottom duration-200">
+            {/* Drawer Header */}
+            <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/60">
+              <div className="flex items-center gap-2">
+                <ShoppingBag className="w-4 h-4 text-amber-400" />
+                <h3 className="font-extrabold text-sm">Keranjang Belanja ({cart.length})</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileCartDrawerOpen(false)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Items */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2.5 divide-y divide-zinc-800">
+              {cart.map((item) => (
+                <div key={item.product.id} className="pt-2 first:pt-0">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="font-bold text-xs text-white">{item.product.name}</div>
+                      <div className="text-[10px] text-zinc-400 font-mono">
+                        {formatRupiah(item.product.sellPrice)} / {item.product.unit}
+                      </div>
+                    </div>
+                    <div className="font-bold text-xs text-amber-400 font-mono">
+                      {formatRupiah(item.subtotal)}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center gap-2 bg-zinc-950 rounded-lg p-1 border border-zinc-800">
+                      <button
+                        type="button"
+                        onClick={() => handleUpdateQty(item.product.id, -1)}
+                        className="w-7 h-7 flex items-center justify-center rounded text-zinc-300 hover:bg-zinc-800 cursor-pointer"
+                      >
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      <span className="w-8 text-center font-bold text-xs font-mono">
+                        {item.quantity}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleUpdateQty(item.product.id, 1)}
+                        className="w-7 h-7 flex items-center justify-center rounded text-zinc-300 hover:bg-zinc-800 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveItem(item.product.id)}
+                      className="p-1.5 text-zinc-400 hover:text-rose-400 cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Drawer Footer Actions */}
+            <div className="p-4 bg-zinc-950 border-t border-zinc-800 space-y-3">
+              <div className="flex justify-between items-baseline font-mono">
+                <span className="text-xs text-zinc-400 font-bold">TOTAL:</span>
+                <span className="font-black text-xl text-amber-400">
+                  {formatRupiah(grandTotal)}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleHoldCart();
+                    setIsMobileCartDrawerOpen(false);
+                  }}
+                  className="py-2.5 rounded-xl border border-zinc-700 bg-zinc-800 text-zinc-200 text-xs font-bold"
+                >
+                  Simpan Antrian
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileCartDrawerOpen(false);
+                    setIsCheckoutOpen(true);
+                  }}
+                  className="py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-black flex items-center justify-center gap-1.5"
+                >
+                  <span>Lanjut Bayar</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Barcode Scanner Modal */}
       <BarcodeScannerModal
@@ -952,7 +1024,7 @@ export const CashierView: React.FC<CashierViewProps> = ({
         products={products}
         onScanSuccess={handleBarcodeScanned}
         mode="CASHIER"
-        cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
+        cartCount={totalItemCount}
         cartTotal={grandTotal}
         onRegisterProduct={(barcode) => {
           setQuickRegisterBarcode(barcode);
@@ -966,34 +1038,30 @@ export const CashierView: React.FC<CashierViewProps> = ({
         darkMode={darkMode}
       />
 
-      {/* Quick Register Modal for Unrecognized Packaging Barcodes */}
+      {/* Quick Register Modal for Unrecognized Barcodes */}
       {isQuickRegisterOpen && (
         <div
           id="quick-register-modal-backdrop"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm overflow-y-auto"
         >
           <div
             id="quick-register-card"
-            className={`w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border ${
-              darkMode
-                ? 'bg-slate-900 border-slate-800 text-slate-100'
-                : 'bg-white border-slate-200 text-slate-800'
-            }`}
+            className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border bg-zinc-900 border-zinc-800 text-zinc-100"
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800 bg-zinc-950/60">
               <div>
-                <h3 className="font-black text-sm sm:text-base flex items-center gap-1.5 text-purple-600 dark:text-pink-400">
-                  <Sparkles className="w-4 h-4 text-pink-500" />
+                <h3 className="font-black text-sm sm:text-base flex items-center gap-1.5 text-amber-400">
+                  <Sparkles className="w-4 h-4 text-amber-400" />
                   <span>Daftarkan Barang dari Kemasan</span>
                 </h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Barcode terdeteksi: <span className="font-mono font-bold text-pink-500">{quickRegisterBarcode}</span>
+                <p className="text-[11px] text-zinc-400">
+                  Barcode: <span className="font-mono font-bold text-amber-400">{quickRegisterBarcode}</span>
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsQuickRegisterOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 cursor-pointer"
+                className="p-1 rounded-lg text-zinc-400 hover:text-white cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1001,15 +1069,15 @@ export const CashierView: React.FC<CashierViewProps> = ({
 
             <form onSubmit={handleQuickRegisterSubmit} className="p-5 space-y-3.5">
               <div>
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
-                  Nama Produk / Kemasan:
+                <label className="block text-xs font-bold text-zinc-400 mb-1">
+                  Nama Produk:
                 </label>
                 <input
                   type="text"
                   value={quickName}
                   onChange={(e) => setQuickName(e.target.value)}
                   placeholder="Contoh: Roma Kelapa 300g / Aqua 600ml"
-                  className="w-full px-3 py-2 rounded-xl border text-xs font-bold bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 rounded-xl border text-xs font-bold bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   autoFocus
                   required
                 />
@@ -1017,13 +1085,13 @@ export const CashierView: React.FC<CashierViewProps> = ({
 
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
+                  <label className="block text-xs font-bold text-zinc-400 mb-1">
                     Kategori:
                   </label>
                   <select
                     value={quickCategory}
                     onChange={(e) => setQuickCategory(e.target.value as ProductCategory)}
-                    className="w-full px-2.5 py-2 rounded-xl border text-xs bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-2.5 py-2 rounded-xl border text-xs bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   >
                     {CATEGORIES.filter((c) => c !== 'ALL').map((c) => (
                       <option key={c} value={c}>
@@ -1033,7 +1101,7 @@ export const CashierView: React.FC<CashierViewProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
+                  <label className="block text-xs font-bold text-zinc-400 mb-1">
                     Satuan:
                   </label>
                   <input
@@ -1041,15 +1109,15 @@ export const CashierView: React.FC<CashierViewProps> = ({
                     value={quickUnit}
                     onChange={(e) => setQuickUnit(e.target.value)}
                     placeholder="pcs, bks, btl"
-                    className="w-full px-3 py-2 rounded-xl border text-xs font-bold bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 rounded-xl border text-xs font-bold bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
-                    Harga Beli (Modal):
+                  <label className="block text-xs font-bold text-zinc-400 mb-1">
+                    Harga Modal (Rp):
                   </label>
                   <input
                     type="number"
@@ -1057,13 +1125,13 @@ export const CashierView: React.FC<CashierViewProps> = ({
                     step="500"
                     value={quickBuyPrice || ''}
                     onChange={(e) => setQuickBuyPrice(Number(e.target.value))}
-                    placeholder="Rp 0"
-                    className="w-full px-3 py-2 rounded-xl border text-xs font-mono bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="0"
+                    className="w-full px-3 py-2 rounded-xl border text-xs font-mono bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
-                    Harga Jual:
+                  <label className="block text-xs font-bold text-zinc-400 mb-1">
+                    Harga Jual (Rp):
                   </label>
                   <input
                     type="number"
@@ -1071,38 +1139,38 @@ export const CashierView: React.FC<CashierViewProps> = ({
                     step="500"
                     value={quickSellPrice || ''}
                     onChange={(e) => setQuickSellPrice(Number(e.target.value))}
-                    placeholder="Rp 0"
-                    className="w-full px-3 py-2 rounded-xl border text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    placeholder="0"
+                    className="w-full px-3 py-2 rounded-xl border text-xs font-mono font-bold text-amber-400 bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
-                  Jumlah Stok Saat Ini:
+                <label className="block text-xs font-bold text-zinc-400 mb-1">
+                  Jumlah Stok Awal:
                 </label>
                 <input
                   type="number"
                   min="1"
                   value={quickStock}
                   onChange={(e) => setQuickStock(Number(e.target.value))}
-                  className="w-full px-3 py-2 rounded-xl border text-xs font-mono bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 rounded-xl border text-xs font-mono bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   required
                 />
               </div>
 
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-200 dark:border-slate-800">
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setIsQuickRegisterOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-zinc-400 hover:text-white cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-md shadow-purple-600/20 active:scale-98 transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-md cursor-pointer flex items-center gap-1.5"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Simpan & Masuk Keranjang</span>
@@ -1113,7 +1181,7 @@ export const CashierView: React.FC<CashierViewProps> = ({
         </div>
       )}
 
-      {/* Checkout Modal with QRIS & Cash fast buttons */}
+      {/* Checkout Modal */}
       <CheckoutModal
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
@@ -1126,6 +1194,7 @@ export const CashierView: React.FC<CashierViewProps> = ({
         currentUser={currentUser}
         onPaymentSuccess={(trx) => {
           setIsCheckoutOpen(false);
+          setIsMobileCartDrawerOpen(false);
           setCart([]);
           setCartDiscount(0);
           onTransactionCompleted(trx);

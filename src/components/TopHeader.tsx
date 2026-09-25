@@ -101,11 +101,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   return (
     <header
       id="top-header-bar"
-      className={`h-16 px-4 sm:px-6 border-b shrink-0 flex items-center justify-between transition-colors sticky top-0 z-20 backdrop-blur-md ${
-        darkMode
-          ? 'bg-[#0B1120]/90 border-slate-800 text-slate-100'
-          : 'bg-white/95 border-slate-200 text-slate-800 shadow-2xs'
-      }`}
+      className="h-16 px-4 sm:px-6 border-b shrink-0 flex items-center justify-between transition-colors sticky top-0 z-20 backdrop-blur-md bg-white/95 dark:bg-zinc-950/95 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100"
     >
       {/* Left: Mobile Drawer Toggle + Breadcrumb & Title */}
       <div className="flex items-center gap-3">
@@ -113,7 +109,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         <button
           type="button"
           onClick={onToggleMobileSidebar}
-          className="md:hidden p-2 rounded-xl border border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          className="md:hidden p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
           title="Buka Navigasi"
         >
           <Menu className="w-5 h-5" />
@@ -124,7 +120,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab('dashboard')}
-            className="hidden sm:flex items-center justify-center w-8 h-8 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-purple-600 dark:text-pink-400 transition-colors cursor-pointer"
+            className="hidden sm:flex items-center justify-center w-8 h-8 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300 transition-colors cursor-pointer"
             title="Kembali ke Dashboard"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -137,12 +133,12 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             <h2 className="text-base sm:text-lg font-black tracking-tight leading-tight">
               {info.title}
             </h2>
-            <span className="hidden xl:inline-flex items-center gap-1 text-[10px] font-semibold bg-purple-500/10 text-purple-600 dark:text-pink-400 border border-purple-500/20 px-2 py-0.5 rounded-md font-mono">
-              <ShieldCheck className="w-3 h-3 text-purple-500" />
+            <span className="hidden xl:inline-flex items-center gap-1 text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 font-mono">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               Sistem Aktif
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 hidden lg:block truncate max-w-md">
+          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 hidden lg:block truncate max-w-md">
             {info.subtitle}
           </p>
         </div>
@@ -152,10 +148,10 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Real-time Clock */}
         <div className="hidden sm:flex flex-col text-right font-mono">
-          <span className="text-xs font-black text-slate-800 dark:text-slate-200 leading-tight">
+          <span className="text-xs font-black text-zinc-900 dark:text-zinc-100 leading-tight">
             {currentTime} WIB
           </span>
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
             {currentDate}
           </span>
         </div>
@@ -163,10 +159,10 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         {/* Cloud Sync Status Badge */}
         <div
           title="Sinkronisasi Cloud Firestore Multi-Perangkat"
-          className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-purple-200 dark:border-purple-800/60 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-pink-300 text-xs font-bold"
+          className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 text-xs font-bold"
         >
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <Wifi className="w-3.5 h-3.5 text-purple-500" />
+          <Wifi className="w-3.5 h-3.5 text-zinc-400" />
           <span className="hidden lg:inline text-[11px] font-mono">Cloud Sync</span>
         </div>
 
@@ -175,7 +171,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           <button
             type="button"
             onClick={() => openAppInNewTab()}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors cursor-pointer"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 text-xs font-bold hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
             title="Buka aplikasi di Tab Baru (untuk akses penuh printer Bluetooth & layar penuh)"
           >
             <ExternalLink className="w-3.5 h-3.5" />
@@ -184,7 +180,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         )}
 
         {/* PWA Install Button (1-Click for cashiers) */}
-        <PWAInstallPrompt variant="header-button" />
+        <PWAInstallPrompt variant="header-button" darkMode={darkMode} />
 
         {/* Shift Management Pill */}
         <button
@@ -192,12 +188,12 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           onClick={onOpenShiftModal}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
             activeShift
-              ? 'bg-purple-500/10 text-purple-600 dark:text-pink-400 border-purple-500/30 hover:bg-purple-500/20'
+              ? 'bg-zinc-900 border-zinc-700 text-zinc-100 hover:border-zinc-600'
               : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20'
           }`}
           title="Klik untuk melihat / tutup shift kasir"
         >
-          <Clock className="w-3.5 h-3.5" />
+          <Clock className={`w-3.5 h-3.5 ${activeShift ? 'text-emerald-400' : 'text-amber-400'}`} />
           <span className="font-numeric font-bold">
             {activeShift ? 'Shift Aktif' : 'Buka Shift'}
           </span>
@@ -209,8 +205,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           onClick={() => setDarkMode(!darkMode)}
           className={`p-2 rounded-xl border transition-colors cursor-pointer ${
             darkMode
-              ? 'border-slate-800 bg-slate-800/80 text-amber-400 hover:bg-slate-700'
-              : 'border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200'
+              ? 'border-zinc-800 bg-zinc-900 text-amber-400 hover:bg-zinc-800'
+              : 'border-zinc-200 bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
           }`}
           title={darkMode ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'}
         >

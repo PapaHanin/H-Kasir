@@ -423,27 +423,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         }`}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Settings className="w-5 h-5 text-purple-500" />
+        <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 flex justify-between items-center">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
+              <Settings className="w-4 h-4 text-amber-400" />
+            </div>
             <div>
-              <h3 className="font-black text-base tracking-tight">Pengaturan Sistem & Database</h3>
-              <p className="text-xs text-slate-500 font-mono">Konfigurasi toko, QRIS, keamanan AES-256, & staf kasir</p>
+              <h3 className="font-extrabold text-base tracking-tight text-zinc-900 dark:text-zinc-100">
+                Pengaturan Sistem Kasir-Q
+              </h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
+                Identitas toko, printer thermal, QRIS, akun kasir &amp; database
+              </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-200">
+          <button onClick={onClose} className="p-1 rounded-lg text-zinc-400 hover:text-zinc-200 cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 px-4 bg-slate-100 dark:bg-slate-950/70 overflow-x-auto text-xs font-bold gap-1 pt-2">
+        <div className="flex border-b border-zinc-200 dark:border-zinc-800 px-4 bg-zinc-100 dark:bg-zinc-950/80 overflow-x-auto text-xs font-bold gap-1 pt-2">
           <button
             onClick={() => setActiveTab('STORE')}
             className={`px-3 py-2 rounded-t-xl transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === 'STORE'
-                ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-pink-400 border-purple-500 shadow-2xs font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+                ? 'bg-white dark:bg-zinc-900 text-amber-500 dark:text-amber-400 border-amber-500 shadow-xs font-bold'
+                : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
             }`}
           >
             <Store className="w-4 h-4" />
@@ -454,59 +460,59 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             onClick={() => setActiveTab('PRINTER')}
             className={`px-3 py-2 rounded-t-xl transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === 'PRINTER'
-                ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-pink-400 border-purple-500 shadow-2xs font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+                ? 'bg-white dark:bg-zinc-900 text-amber-500 dark:text-amber-400 border-amber-500 shadow-xs font-bold'
+                : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
             }`}
           >
-            <Printer className="w-4 h-4 text-blue-500" />
-            <span>Printer Thermal & Kiosk</span>
+            <Printer className="w-4 h-4" />
+            <span>Printer Thermal</span>
           </button>
 
           <button
             onClick={() => setActiveTab('QRIS')}
             className={`px-3 py-2 rounded-t-xl transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === 'QRIS'
-                ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-pink-400 border-purple-500 shadow-2xs font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+                ? 'bg-white dark:bg-zinc-900 text-amber-500 dark:text-amber-400 border-amber-500 shadow-xs font-bold'
+                : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
             }`}
           >
             <QrCode className="w-4 h-4" />
-            <span>QRIS Real-Time</span>
+            <span>QRIS Pembayaran</span>
           </button>
 
           <button
             onClick={() => setActiveTab('SECURITY')}
             className={`px-3 py-2 rounded-t-xl transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === 'SECURITY'
-                ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-pink-400 border-purple-500 shadow-2xs font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+                ? 'bg-white dark:bg-zinc-900 text-amber-500 dark:text-amber-400 border-amber-500 shadow-xs font-bold'
+                : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
             }`}
           >
-            <ShieldCheck className="w-4 h-4 text-purple-500" />
-            <span>Keamanan & Cadangan</span>
+            <ShieldCheck className="w-4 h-4" />
+            <span>Keamanan &amp; Backup</span>
           </button>
 
           <button
             onClick={() => setActiveTab('USERS')}
             className={`px-3 py-2 rounded-t-xl transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === 'USERS'
-                ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-pink-400 border-purple-500 shadow-2xs font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+                ? 'bg-white dark:bg-zinc-900 text-amber-500 dark:text-amber-400 border-amber-500 shadow-xs font-bold'
+                : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>Kasir & PIN</span>
+            <span>Kasir &amp; PIN</span>
           </button>
 
           <button
             onClick={() => setActiveTab('CLOUD')}
             className={`px-3 py-2 rounded-t-xl transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === 'CLOUD'
-                ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-pink-400 border-purple-500 shadow-2xs font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+                ? 'bg-white dark:bg-zinc-900 text-amber-500 dark:text-amber-400 border-amber-500 shadow-xs font-bold'
+                : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
             }`}
           >
-            <Cloud className="w-4 h-4 text-pink-500" />
+            <Cloud className="w-4 h-4" />
             <span>Sinkronisasi Awan</span>
           </button>
         </div>
@@ -516,8 +522,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div
             className={`px-6 py-2.5 text-xs font-bold flex items-center gap-2 ${
               statusMsg.type === 'success'
-                ? 'bg-purple-500/10 text-purple-700 dark:text-pink-300 border-b border-purple-500/20'
-                : 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-b border-rose-500/20'
+                ? 'bg-amber-500/10 text-amber-400 border-b border-amber-500/20'
+                : 'bg-rose-500/10 text-rose-400 border-b border-rose-500/20'
             }`}
           >
             <CheckCircle2 className="w-4 h-4" />
@@ -527,162 +533,143 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Tab Body */}
         <div className="p-6 space-y-5 overflow-y-auto max-h-[65vh]">
-          {/* TAB 1: PROFIL TOKO */}
+          {/* TAB 1: PROFIL TOKO (1 TOKO 1 APLIKASI) */}
           {activeTab === 'STORE' && (
             <form onSubmit={handleSaveStoreSettings} className="space-y-4">
-              {/* Preset Quick Apply */}
-              <div className="p-3.5 rounded-xl bg-purple-500/5 dark:bg-purple-950/30 border border-purple-500/20 space-y-2">
-                <div className="text-[11px] font-bold text-purple-700 dark:text-pink-300 font-mono uppercase">
-                  PILIH PRESET IDENTITAS TOKO KELONTONG CEPAT:
+              {/* Single Store Identity Info Card */}
+              <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+                  <Store className="w-5 h-5" />
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStoreForm((prev) => ({
-                        ...prev,
-                        storeName: 'Toko Kelontong Berkah Sejahtera',
-                        tagline: 'Lengkap, Murah & Melayani Sepenuh Hati',
-                        address: 'Jl. Melati Raya No. 45, RT 03/05',
-                        footerMessage: 'Terima Kasih Atas Kunjungan Anda! Semoga Berkah Selalu.',
-                      }));
-                      sound.playSuccess();
-                    }}
-                    className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold transition-all active:scale-95 shadow-sm"
-                  >
-                    🛒 Toko Kelontong Berkah Sejahtera
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStoreForm((prev) => ({
-                        ...prev,
-                        storeName: 'Warung Madura Sembako 24 Jam',
-                        tagline: 'Buka 24 Jam - Sedia Sembako, Gas, Galon & Pulsa',
-                        address: 'Jl. Raya Utama No. 128, Depan Masjid',
-                        footerMessage: 'Matur Suksma / Terima Kasih Atas Kunjungan Anda.',
-                      }));
-                      sound.playSuccess();
-                    }}
-                    className="px-3 py-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/50 hover:bg-purple-200 text-purple-700 dark:text-pink-300 border border-purple-300 dark:border-purple-700 text-xs font-bold transition-all active:scale-95"
-                  >
-                    🏪 Warung Sembako Madura 24 Jam
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStoreForm((prev) => ({
-                        ...prev,
-                        storeName: 'Minimarket Kelontong Murah Jaya',
-                        tagline: 'Grosir & Eceran Sembako Terlengkap & Termurah',
-                        address: 'Pasar Baru Blok A No. 15-16',
-                        footerMessage: 'Terima Kasih Telah Belanja di Toko Murah Jaya.',
-                      }));
-                      sound.playSuccess();
-                    }}
-                    className="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 text-xs font-bold transition-all active:scale-95"
-                  >
-                    🛍️ Minimarket Kelontong Murah Jaya
-                  </button>
+                <div>
+                  <h4 className="text-xs font-extrabold text-white flex items-center gap-2">
+                    <span>Profil Resmi Toko Anda</span>
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-mono font-bold">
+                      1 Toko 1 Aplikasi
+                    </span>
+                  </h4>
+                  <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
+                    Aplikasi ini dikonfigurasi khusus untuk satu toko ini saja. Seluruh data nama toko, alamat, dan kontak di bawah ini akan tercetak langsung di kepala struk belanja kertas thermal &amp; struk digital WhatsApp.
+                  </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Nama Pemilik Toko:</label>
-                  <input
-                    type="text"
-                    value={storeForm.ownerName || ''}
-                    onChange={(e) => setStoreForm({ ...storeForm, ownerName: e.target.value })}
-                    placeholder="Contoh: Pak Budi Santoso"
-                    className="w-full px-3 py-2 rounded-xl border text-xs font-bold bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Nama Toko Kelontong:</label>
+                  <label className="block text-xs font-bold text-zinc-400 mb-1">
+                    Nama Toko Kelontong: <span className="text-rose-400">*</span>
+                  </label>
                   <input
                     type="text"
                     value={storeForm.storeName}
                     onChange={(e) => setStoreForm({ ...storeForm, storeName: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border text-xs font-bold bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Contoh: Toko Berkah Jaya"
+                    className="w-full px-3 py-2.5 rounded-xl border text-xs font-bold bg-zinc-950 border-zinc-800 text-white placeholder-zinc-500 focus:outline-hidden focus:border-amber-500"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Slogan / Tagline Toko:</label>
+                  <label className="block text-xs font-bold text-zinc-400 mb-1">
+                    Nama Pemilik / Penanggung Jawab:
+                  </label>
                   <input
                     type="text"
-                    value={storeForm.tagline}
-                    onChange={(e) => setStoreForm({ ...storeForm, tagline: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border text-xs bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    value={storeForm.ownerName || ''}
+                    onChange={(e) => setStoreForm({ ...storeForm, ownerName: e.target.value })}
+                    placeholder="Contoh: Pak Haji Budi"
+                    className="w-full px-3 py-2.5 rounded-xl border text-xs font-bold bg-zinc-950 border-zinc-800 text-white placeholder-zinc-500 focus:outline-hidden focus:border-amber-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Alamat Toko Kelontong:</label>
+                <label className="block text-xs font-bold text-zinc-400 mb-1">
+                  Slogan / Tagline Toko:
+                </label>
+                <input
+                  type="text"
+                  value={storeForm.tagline}
+                  onChange={(e) => setStoreForm({ ...storeForm, tagline: e.target.value })}
+                  placeholder="Contoh: Sembako Lengkap, Murah &amp; Terpercaya"
+                  className="w-full px-3 py-2.5 rounded-xl border text-xs bg-zinc-950 border-zinc-800 text-white placeholder-zinc-500 focus:outline-hidden focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-400 mb-1">
+                  Alamat Lengkap Toko (Tercetak di Struk): <span className="text-rose-400">*</span>
+                </label>
                 <input
                   type="text"
                   value={storeForm.address}
                   onChange={(e) => setStoreForm({ ...storeForm, address: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border text-xs bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Contoh: Jl. Melati Raya No. 45, RT 03/RW 05, Kel. Sukamaju"
+                  className="w-full px-3 py-2.5 rounded-xl border text-xs bg-zinc-950 border-zinc-800 text-white placeholder-zinc-500 focus:outline-hidden focus:border-amber-500"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 font-mono">No. Telp / WhatsApp Toko:</label>
+                  <label className="block text-xs font-bold text-zinc-400 mb-1 font-mono">
+                    No. Telp / WhatsApp Toko (Untuk Kirim Struk): <span className="text-rose-400">*</span>
+                  </label>
                   <input
                     type="text"
                     value={storeForm.phone}
                     onChange={(e) => setStoreForm({ ...storeForm, phone: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border text-xs font-mono bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Contoh: 081234567890"
+                    className="w-full px-3 py-2.5 rounded-xl border text-xs font-mono bg-zinc-950 border-zinc-800 text-white placeholder-zinc-500 focus:outline-hidden focus:border-amber-500"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 font-mono">Ukuran Kertas Struk:</label>
+                  <label className="block text-xs font-bold text-zinc-400 mb-1 font-mono">
+                    Ukuran Lebar Kertas Struk:
+                  </label>
                   <select
                     value={storeForm.paperSize}
                     onChange={(e) => setStoreForm({ ...storeForm, paperSize: e.target.value as '58mm' | '80mm' })}
-                    className="w-full px-3 py-2 rounded-xl border text-xs bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2.5 rounded-xl border text-xs bg-zinc-950 border-zinc-800 text-white font-bold focus:outline-hidden focus:border-amber-500"
                   >
-                    <option value="58mm">58mm (Thermal Standar Mini POS)</option>
-                    <option value="80mm">80mm (Thermal Lebar)</option>
+                    <option value="58mm">58mm (Printer Thermal Standar Mini POS Bluetooth)</option>
+                    <option value="80mm">80mm (Printer Thermal Lebar Kasir Supermarket)</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Pesan Penutup Struk (Footer):</label>
+                <label className="block text-xs font-bold text-zinc-400 mb-1">
+                  Pesan Penutup Struk (Footer Pesan Terima Kasih):
+                </label>
                 <input
                   type="text"
                   value={storeForm.footerMessage}
                   onChange={(e) => setStoreForm({ ...storeForm, footerMessage: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border text-xs bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Contoh: Barang yang sudah dibeli tidak dapat ditukar. Terima kasih!"
+                  className="w-full px-3 py-2.5 rounded-xl border text-xs bg-zinc-950 border-zinc-800 text-white placeholder-zinc-500 focus:outline-hidden focus:border-amber-500"
                 />
               </div>
 
               {/* Toggles */}
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-2">
-                <label className="flex items-center justify-between cursor-pointer text-xs font-semibold">
+              <div className="p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2">
+                <label className="flex items-center justify-between cursor-pointer text-xs font-semibold text-zinc-200">
                   <div className="flex items-center gap-2">
-                    <Printer className="w-4 h-4 text-purple-500" />
-                    <span>Cetak Struk Otomatis Selesai Bayar</span>
+                    <Printer className="w-4 h-4 text-amber-400" />
+                    <span>Cetak Struk Otomatis Setiap Selesai Pembayaran</span>
                   </div>
                   <input
                     type="checkbox"
                     checked={storeForm.autoPrintReceipt}
                     onChange={(e) => setStoreForm({ ...storeForm, autoPrintReceipt: e.target.checked })}
-                    className="w-4 h-4 text-purple-600 rounded"
+                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
                   />
                 </label>
 
-                <label className="flex items-center justify-between cursor-pointer text-xs font-semibold">
+                <label className="flex items-center justify-between cursor-pointer text-xs font-semibold text-zinc-200">
                   <div className="flex items-center gap-2">
-                    <Volume2 className="w-4 h-4 text-pink-500" />
-                    <span>Suara Beep & Chime Kasir (Audio Feedback)</span>
+                    <Volume2 className="w-4 h-4 text-amber-400" />
+                    <span>Suara Beep &amp; Audio Saat Scan &amp; Bayar</span>
                   </div>
                   <input
                     type="checkbox"
@@ -691,7 +678,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       setStoreForm({ ...storeForm, playAudioFeedback: e.target.checked });
                       sound.enabled = e.target.checked;
                     }}
-                    className="w-4 h-4 text-purple-600 rounded"
+                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
                   />
                 </label>
               </div>
@@ -699,9 +686,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="pt-2 flex justify-end">
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-black text-xs rounded-xl shadow-md tracking-wide cursor-pointer transition-all active:scale-95"
+                  className="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs rounded-xl shadow-md tracking-wide cursor-pointer transition-all active:scale-95 flex items-center gap-2"
                 >
-                  Simpan Profil Toko
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Simpan Profil Toko</span>
                 </button>
               </div>
             </form>
@@ -1337,6 +1325,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
               </div>
 
+              {/* Prepare for New Store Client */}
+              <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-2">
+                <div className="flex items-center gap-2 text-amber-500 font-bold text-xs">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Persiapan Toko Baru (Sebelum Serah Terima ke Klien)</span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Gunakan tombol ini jika Anda ingin menyerahkan aplikasi ke pemilik toko baru. Riwayat transaksi demo, kasbon demo, dan log shift akan dikosongkan (mulai dari Rp 0), namun seluruh katalog master barang sembako tetap dipertahankan.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm('PERINGATAN: Apakah Anda yakin ingin membersihkan seluruh riwayat transaksi, kasbon, dan shift untuk toko baru? Master produk tetap tersimpan.')) {
+                      db.clearStoreForNewClient({ keepProducts: true });
+                      onRestoreCompleted();
+                      sound.playSuccess();
+                      alert('Riwayat transaksi toko berhasil dibersihkan! Pembukuan toko baru siap dimulai dari nol.');
+                    }
+                  }}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs rounded-xl cursor-pointer shadow-md transition-all active:scale-95"
+                >
+                  Bersihkan Riwayat Transaksi Toko Baru
+                </button>
+              </div>
+
               {/* Reset to Factory Default */}
               <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
                 <button
@@ -1489,43 +1502,143 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           )}
 
-          {/* TAB 5: SINKRONISASI AWAN FIREBASE */}
+          {/* TAB 5: SINKRONISASI AWAN & PEMISAHAN DATABASE TOKO */}
           {activeTab === 'CLOUD' && (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs text-purple-950 dark:text-pink-200 space-y-2">
-                <div className="font-bold flex items-center gap-1.5 text-purple-700 dark:text-pink-300">
-                  <Cloud className="w-5 h-5 text-purple-500" />
-                  <span>Sinkronisasi Cloud Firestore Aktif (Multi-Device & Auto-Backup)</span>
+              {/* Info Card */}
+              <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-zinc-300 space-y-2">
+                <div className="font-extrabold flex items-center gap-2 text-amber-400">
+                  <Cloud className="w-5 h-5 text-amber-400" />
+                  <span className="text-sm">Pemisahan Database &amp; Sinkronisasi Cloud</span>
                 </div>
-                <p className="opacity-90 leading-relaxed">
-                  Database Anda kini terhubung ke <strong>Google Firebase Firestore</strong>. Setiap transaksi kasir, perubahan harga, atau pengurangan stok di perangkat ini akan <strong>tersinkronisasi secara otomatis ke seluruh HP/tablet kasir lainnya secara real-time</strong>.
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  Agar data <strong>Toko A tidak tercampur dengan Toko B</strong> saat Anda menjual aplikasi ini ke banyak toko, setiap toko memiliki <strong>Kode Toko (Store ID)</strong> uniknya sendiri. Database cloud akan memisahkan folder penyimpanan secara otomatis.
                 </p>
-                <div className="flex flex-wrap gap-2 pt-1 font-mono text-[11px]">
-                  <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-700 dark:text-pink-300 font-bold">
-                    ✓ Anti-Hilang (Cloud Persistence)
+                <div className="flex flex-wrap gap-2 pt-1 font-mono text-[10px]">
+                  <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold">
+                    ✓ Terisolasi Per-Toko
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-pink-500/20 text-pink-700 dark:text-pink-300 font-bold">
+                  <span className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-bold">
                     ✓ Multi-Kasir Real-time
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-slate-500/20 text-slate-700 dark:text-slate-300 font-bold">
+                  <span className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-bold">
                     ✓ Tetap Berjalan Saat Offline
                   </span>
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 space-y-3">
-                <h4 className="font-bold text-xs">Aksi Sinkronisasi Manual</h4>
-                <p className="text-[11px] text-slate-500">
-                  Secara default sistem melakukan sinkronisasi otomatis. Anda juga dapat memaksa pengiriman data lokal saat ini ke server cloud:
+              {/* Multi-Tenant Store ID Config */}
+              <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950 space-y-3">
+                <h4 className="font-bold text-xs text-white flex items-center gap-2">
+                  <Key className="w-4 h-4 text-amber-400" />
+                  <span>Kode Lisensi / ID Database Toko Ini:</span>
+                </h4>
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={storeForm.storeId || ''}
+                    onChange={(e) =>
+                      setStoreForm({
+                        ...storeForm,
+                        storeId: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '_'),
+                      })
+                    }
+                    placeholder="Contoh: toko_berkah_01"
+                    className="w-full px-3 py-2.5 rounded-xl border text-xs font-mono font-bold bg-zinc-900 border-zinc-800 text-amber-400 focus:outline-hidden focus:border-amber-500"
+                  />
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    Ubah kode ini untuk setiap toko yang membeli (misal: <code className="text-amber-400">toko_01</code>, <code className="text-amber-400">toko_02</code>, dst).
+                  </p>
+                </div>
+
+                {/* Direct Link Generator */}
+                <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 space-y-1.5">
+                  <div className="text-[10px] font-mono font-bold text-zinc-400 uppercase">
+                    Link Akses Khusus Toko Ini (Bisa Dibagikan ke HP Kasir Toko):
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={
+                        typeof window !== 'undefined'
+                          ? `${window.location.origin}${window.location.pathname}?store=${storeForm.storeId || 'toko_utama'}`
+                          : `?store=${storeForm.storeId || 'toko_utama'}`
+                      }
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 text-[11px] font-mono text-zinc-300 select-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const link = `${window.location.origin}${window.location.pathname}?store=${storeForm.storeId || 'toko_utama'}`;
+                        navigator.clipboard.writeText(link);
+                        sound.playSuccess();
+                        setStatusMsg({ text: 'Link akses toko berhasil disalin!', type: 'success' });
+                        setTimeout(() => setStatusMsg(null), 2500);
+                      }}
+                      className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs rounded-lg flex items-center gap-1.5 shrink-0 cursor-pointer transition-all active:scale-95"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Salin</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Cloud Sync Toggle */}
+                <div className="pt-2 border-t border-zinc-800/80">
+                  <label className="flex items-center justify-between cursor-pointer text-xs font-semibold text-zinc-200">
+                    <div>
+                      <div className="font-bold flex items-center gap-1.5">
+                        <span>Aktifkan Sinkronisasi Cloud Firestore</span>
+                        {!storeForm.enableCloudSync && (
+                          <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold">
+                            Default: Mode Offline Aktif
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 font-normal">
+                        Bawaan aplikasi disetel ke <strong>Mode Offline Mandiri</strong> agar data tiap toko 100% aman di HP masing-masing tanpa takut tertukar.
+                      </div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={!!storeForm.enableCloudSync}
+                      onChange={(e) => setStoreForm({ ...storeForm, enableCloudSync: e.target.checked })}
+                      className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                    />
+                  </label>
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSaveSettings(storeForm);
+                      sound.playSuccess();
+                      setStatusMsg({ text: 'Konfigurasi cloud toko berhasil disimpan!', type: 'success' });
+                      setTimeout(() => setStatusMsg(null), 3000);
+                    }}
+                    className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs rounded-xl shadow-md cursor-pointer transition-all active:scale-95"
+                  >
+                    Simpan Pengaturan Cloud
+                  </button>
+                </div>
+              </div>
+
+              {/* Manual Push */}
+              <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950 space-y-2">
+                <h4 className="font-bold text-xs text-white">Sinkronkan Manual ke Cloud</h4>
+                <p className="text-[11px] text-zinc-400">
+                  Secara bawaan data tersinkron otomatis. Anda dapat menekan tombol ini untuk mengunggah paksa data lokal saat ini:
                 </p>
                 <button
                   type="button"
                   onClick={handleCloudSync}
                   disabled={isSyncing}
-                  className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="w-full py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs rounded-xl border border-zinc-700 flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
-                  <CloudUpload className="w-4 h-4" />
-                  <span>{isSyncing ? 'Sedang Menyinkronkan...' : 'Paksa Sinkronkan Semua Data Toko ke Cloud'}</span>
+                  <CloudUpload className="w-4 h-4 text-amber-400" />
+                  <span>{isSyncing ? 'Sedang Menyinkronkan...' : 'Unggah Cadangan ke Cloud'}</span>
                 </button>
               </div>
             </div>

@@ -462,13 +462,13 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             </div>
           )}
 
-          {/* 1-CLICK UNIVERSAL PRINT BUTTON (Foolproof for any cashier) */}
+          {/* 1-CLICK UNIVERSAL PRINT BUTTON */}
           <button
             id="btn-receipt-smart-print"
             type="button"
             onClick={handleSmartPrint}
             disabled={isPrinting}
-            className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-sm sm:text-base rounded-2xl flex items-center justify-center gap-2.5 shadow-lg shadow-emerald-600/25 active:scale-98 transition-all cursor-pointer"
+            className="w-full py-3.5 px-4 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-zinc-950 font-black text-sm sm:text-base rounded-xl flex items-center justify-center gap-2.5 shadow-lg shadow-amber-500/20 active:scale-98 transition-all cursor-pointer"
           >
             {isPrinting ? (
               <>
@@ -480,7 +480,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                 <Printer className="w-5 h-5" />
                 <span>CETAK STRUK SEKARANG</span>
                 {btStatus.isConnected && (
-                  <span className="ml-1 px-2 py-0.5 text-[10px] font-bold bg-white/20 rounded-full text-emerald-100">
+                  <span className="ml-1 px-2 py-0.5 text-[10px] font-bold bg-zinc-950/20 rounded-full text-zinc-950">
                     Bluetooth
                   </span>
                 )}
@@ -494,20 +494,16 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               id="btn-receipt-wa"
               type="button"
               onClick={handleShareWA}
-              className="py-2.5 px-3 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+              className="py-2.5 px-3 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-800 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
             >
-              <Share2 className="w-3.5 h-3.5" />
+              <Share2 className="w-3.5 h-3.5 text-emerald-500" />
               <span>Kirim Struk ke WA</span>
             </button>
             <button
               id="btn-receipt-pdf"
               type="button"
               onClick={handleDownloadPDF}
-              className={`py-2.5 px-3 border font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-colors active:scale-95 cursor-pointer ${
-                darkMode
-                  ? 'border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200'
-                  : 'border-slate-300 bg-white hover:bg-slate-100 text-slate-700'
-              }`}
+              className="py-2.5 px-3 border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-colors active:scale-95 cursor-pointer text-zinc-800 dark:text-zinc-200"
             >
               <FileDown className="w-3.5 h-3.5 text-blue-500" />
               <span>Unduh File PDF</span>
@@ -519,31 +515,31 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             <button
               type="button"
               onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-              className="text-[11px] text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium underline text-center w-full cursor-pointer py-1"
+              className="text-[11px] text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 font-medium underline text-center w-full cursor-pointer py-1"
             >
               {showAdvancedOptions ? '▲ Sembunyikan Pilihan Lain' : '▼ Opsi Printer Lainnya (Bluetooth / RawBT Android)'}
             </button>
 
             {showAdvancedOptions && (
-              <div className="mt-2 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
+              <div className="mt-2 p-3 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 space-y-2 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">Pilih Metode Lain:</span>
+                  <span className="font-semibold text-zinc-700 dark:text-zinc-300">Pilih Metode Lain:</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={handlePrintBluetoothManual}
-                    className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300 font-medium flex items-center justify-center gap-1.5 cursor-pointer hover:bg-blue-100"
+                    className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 font-medium flex items-center justify-center gap-1.5 cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700"
                   >
-                    <Bluetooth className="w-3.5 h-3.5" />
+                    <Bluetooth className="w-3.5 h-3.5 text-blue-500" />
                     <span>Pindai Bluetooth Manual</span>
                   </button>
                   <button
                     type="button"
                     onClick={handleRawBTPrint}
-                    className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900 text-purple-700 dark:text-purple-300 font-medium flex items-center justify-center gap-1.5 cursor-pointer hover:bg-purple-100"
+                    className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 font-medium flex items-center justify-center gap-1.5 cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700"
                   >
-                    <Printer className="w-3.5 h-3.5" />
+                    <Printer className="w-3.5 h-3.5 text-amber-500" />
                     <span>Cetak via RawBT (HP Android)</span>
                   </button>
                 </div>
@@ -551,7 +547,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                   <button
                     type="button"
                     onClick={() => openAppInNewTab()}
-                    className="w-full p-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 font-medium flex items-center justify-center gap-1.5 cursor-pointer hover:bg-amber-100"
+                    className="w-full p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 font-medium flex items-center justify-center gap-1.5 cursor-pointer hover:bg-zinc-200"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     <span>Buka Kasir di Tab Baru (Untuk Layar Penuh)</span>
@@ -569,10 +565,10 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               onClose();
               onNewTransaction();
             }}
-            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-black text-sm rounded-xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-98 tracking-wide cursor-pointer"
+            className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-98 tracking-wide cursor-pointer"
           >
-            <RefreshCw className="w-4 h-4" />
-            <span>Selesai & Transaksi Baru</span>
+            <RefreshCw className="w-4 h-4 text-amber-400" />
+            <span>Selesai &amp; Transaksi Baru</span>
           </button>
         </div>
       </div>

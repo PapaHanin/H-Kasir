@@ -3,7 +3,6 @@ import {
   BookOpen,
   Plus,
   Search,
-  DollarSign,
   FileSpreadsheet,
   CheckCircle2,
   AlertCircle,
@@ -12,7 +11,6 @@ import {
   X,
   CheckSquare,
   Square,
-  Send,
 } from 'lucide-react';
 import { CustomerDebt, StoreSettings, CashierUser } from '../types';
 import { formatRupiah, formatDateIndo, exportDebtsToExcel } from '../services/export';
@@ -69,7 +67,7 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
 
   const totalOutstandingDebt = debts.reduce((sum, d) => sum + d.totalDebt, 0);
 
-  // Checkbox helpers for Debts
+  // Checkbox helpers
   const isAllDebtsSelected = useMemo(() => {
     if (filteredDebts.length === 0) return false;
     return filteredDebts.every((d) => selectedDebtIds.includes(d.id));
@@ -166,16 +164,16 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
   };
 
   return (
-    <div id="debts-view-container" className="max-w-7xl mx-auto space-y-5">
+    <div id="debts-view-container" className="max-w-7xl mx-auto space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-black tracking-tight flex items-center gap-2 text-slate-900 dark:text-slate-100">
-            <BookOpen className="w-6 h-6 text-amber-500" />
-            <span>Buku Kasbon & Catatan Hutang Pelanggan</span>
+          <h2 className="text-lg sm:text-xl font-black tracking-tight flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
+            <BookOpen className="w-5 h-5 text-amber-500" />
+            <span>Buku Kasbon &amp; Catatan Piutang Warga</span>
           </h2>
-          <p className="text-xs text-slate-500 font-mono">
-            Kelola tagihan kasbon toko kelontong & riwayat cicilan pelunasan
+          <p className="text-xs text-zinc-400 font-mono">
+            Kelola tagihan kasbon toko kelontong &amp; riwayat cicilan pelunasan
           </p>
         </div>
 
@@ -184,7 +182,7 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
             id="btn-export-debts-excel"
             type="button"
             onClick={() => exportDebtsToExcel(debts, settings)}
-            className="px-3 py-2 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30 flex items-center gap-1.5 shadow-2xs transition-colors"
+            className="px-3 py-2 rounded-xl text-xs font-bold bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 flex items-center gap-1.5 transition-colors"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
             <span>Ekspor Excel</span>
@@ -204,7 +202,7 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
               });
               setIsAddModalOpen(true);
             }}
-            className="px-4 py-2 rounded-xl text-xs font-black bg-amber-500 text-slate-950 hover:bg-amber-400 flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition-all tracking-wide"
+            className="px-4 py-2 rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-400 text-zinc-950 flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition-all tracking-wide cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Catat Kasbon Baru</span>
@@ -213,28 +211,24 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
       </div>
 
       {/* Metric Banner Card */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div
-          className={`p-4 rounded-2xl border shadow-xl ${
-            darkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200'
-          }`}
-        >
-          <div className="text-xs font-bold text-slate-500 uppercase font-mono">TOTAL PIUTANG / KASBON AKTIF</div>
-          <div className="text-2xl font-black font-numeric text-amber-500 mt-1">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="p-4 rounded-xl border bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-2xs">
+          <div className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase font-mono">
+            TOTAL PIUTANG AKTIF
+          </div>
+          <div className="text-2xl font-black font-numeric font-mono text-amber-500 dark:text-amber-400 mt-1">
             {formatRupiah(totalOutstandingDebt)}
           </div>
-          <div className="text-xs text-slate-400 mt-1 font-mono">
+          <div className="text-xs text-zinc-400 mt-1 font-mono">
             Dari {debts.filter((d) => d.totalDebt > 0).length} pelanggan belum lunas
           </div>
         </div>
 
-        <div
-          className={`p-4 rounded-2xl border shadow-xl ${
-            darkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200'
-          }`}
-        >
-          <div className="text-xs font-bold text-slate-500 uppercase font-mono">TOTAL PELANGGAN TERCATAT</div>
-          <div className="text-2xl font-black font-numeric text-slate-800 dark:text-slate-100 mt-1">
+        <div className="p-4 rounded-xl border bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-2xs">
+          <div className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase font-mono">
+            TOTAL PELANGGAN KASBON
+          </div>
+          <div className="text-2xl font-black font-numeric font-mono text-zinc-900 dark:text-zinc-100 mt-1">
             {debts.length} Orang
           </div>
           <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-semibold font-mono">
@@ -242,14 +236,12 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
           </div>
         </div>
 
-        <div
-          className={`p-4 rounded-2xl border shadow-xl bg-amber-500/10 border-amber-500/20 flex flex-col justify-center`}
-        >
-          <div className="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-300">
-            <AlertCircle className="w-4 h-4 text-amber-500" />
+        <div className="p-4 rounded-xl border bg-zinc-100 dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 flex flex-col justify-center">
+          <div className="flex items-center gap-2 text-xs font-bold text-zinc-800 dark:text-zinc-200">
+            <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
             <span>Pengingat Ramah WhatsApp</span>
           </div>
-          <p className="text-[11px] text-amber-600 dark:text-amber-400/80 mt-1">
+          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
             Kirim rincian sisa kasbon langsung ke nomor WA pelanggan dengan 1 klik.
           </p>
         </div>
@@ -258,30 +250,30 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
       {/* Search Bar & Bulk Settle Action Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-3 text-zinc-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari nama pelanggan / no. HP..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs sm:text-sm bg-white dark:bg-slate-900/90 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800 dark:text-slate-100"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs sm:text-sm bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400"
           />
         </div>
 
         {selectedDebtIds.length > 0 && (
-          <div className="flex items-center gap-2 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 animate-in fade-in duration-150">
             <button
               type="button"
               onClick={handleBulkSettleDebts}
-              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md transition-colors cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs flex items-center gap-1.5 shadow-md transition-colors cursor-pointer"
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>Lunaskan {selectedDebtIds.length} Kasbon Tercentang Sekaligus</span>
+              <span>Lunaskan {selectedDebtIds.length} Kasbon Tercentang</span>
             </button>
             <button
               type="button"
               onClick={() => setSelectedDebtIds([])}
-              className="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-300 transition-colors cursor-pointer"
+              className="px-3 py-2 rounded-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-semibold hover:bg-zinc-300 transition-colors cursor-pointer"
             >
               Batal ({selectedDebtIds.length})
             </button>
@@ -290,26 +282,22 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
       </div>
 
       {/* Debts Table */}
-      <div
-        className={`rounded-2xl border shadow-xl overflow-hidden ${
-          darkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200'
-        }`}
-      >
+      <div className="rounded-2xl border shadow-xl overflow-hidden bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-950/70 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider font-bold font-mono">
+            <thead className="bg-zinc-50 dark:bg-zinc-950/70 text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800 uppercase tracking-wider font-bold font-mono text-[10px]">
               <tr>
                 <th className="px-3 py-3.5 text-center w-10">
                   <button
                     type="button"
                     onClick={toggleSelectAllDebts}
-                    title={isAllDebtsSelected ? 'Batalkan Semua Pilihan' : 'Centang Semua Pelanggan'}
-                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                    title={isAllDebtsSelected ? 'Batalkan Semua Pilihan' : 'Centang Semua'}
+                    className="p-1 rounded text-zinc-400 hover:text-zinc-600 cursor-pointer"
                   >
                     {isAllDebtsSelected ? (
                       <CheckSquare className="w-4 h-4 text-amber-500" />
                     ) : (
-                      <Square className="w-4 h-4 text-slate-400" />
+                      <Square className="w-4 h-4" />
                     )}
                   </button>
                 </th>
@@ -322,10 +310,10 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
                 <th className="px-4 py-3.5 text-center font-sans">Aksi Bayar</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
+            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 font-medium">
               {filteredDebts.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={8} className="px-4 py-8 text-center text-zinc-400">
                     Belum ada data catatan kasbon pelanggan.
                   </td>
                 </tr>
@@ -338,42 +326,41 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
                       key={debt.id}
                       className={`transition-colors ${
                         isChecked
-                          ? 'bg-amber-500/10 dark:bg-amber-500/15'
-                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                          ? 'bg-amber-500/10'
+                          : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/40'
                       }`}
                     >
                       <td className="px-3 py-3 text-center">
                         <button
                           type="button"
                           onClick={() => toggleSelectDebt(debt.id)}
-                          title="Centang pelanggan ini"
-                          className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                          className="p-1 rounded text-zinc-400 hover:text-zinc-600 cursor-pointer"
                         >
                           {isChecked ? (
                             <CheckSquare className="w-4 h-4 text-amber-500" />
                           ) : (
-                            <Square className="w-4 h-4 text-slate-400" />
+                            <Square className="w-4 h-4" />
                           )}
                         </button>
                       </td>
-                      <td className="px-4 py-3 font-bold text-slate-800 dark:text-slate-100">
+                      <td className="px-4 py-3 font-bold text-zinc-900 dark:text-zinc-100">
                         {debt.customerName}
                       </td>
-                      <td className="px-4 py-3 text-slate-500 font-mono">
+                      <td className="px-4 py-3 text-zinc-500 font-mono">
                         {debt.phone || '-'}
                       </td>
-                      <td className="px-4 py-3 text-slate-500">
+                      <td className="px-4 py-3 text-zinc-500">
                         {debt.address || '-'}
                       </td>
-                      <td className="px-4 py-3 text-right font-numeric font-extrabold text-sm text-amber-600 dark:text-amber-400">
+                      <td className="px-4 py-3 text-right font-numeric font-mono font-black text-sm text-amber-500 dark:text-amber-400">
                         {formatRupiah(debt.totalDebt)}
                       </td>
-                      <td className="px-4 py-3 text-slate-500 font-mono text-[11px]">
+                      <td className="px-4 py-3 text-zinc-500 font-mono text-[11px]">
                         {debt.dueDate || '-'}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-md font-mono font-bold text-[10px] border ${
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
                             isPaidOff
                               ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                               : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
@@ -392,7 +379,7 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
                                 setPayAmount(debt.totalDebt);
                                 setIsPayModalOpen(true);
                               }}
-                              className="px-3 py-1 rounded-lg bg-emerald-600 dark:bg-emerald-500 hover:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-bold text-[11px] shadow-xs transition-colors"
+                              className="px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-[11px] shadow-2xs transition-colors cursor-pointer"
                             >
                               Bayar / Cicil
                             </button>
@@ -401,7 +388,7 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
                             type="button"
                             onClick={() => sendWhatsAppReminder(debt)}
                             title="Kirim Pesan Tagihan WA"
-                            className="p-1 rounded-lg text-emerald-500 hover:bg-emerald-500/10 transition-colors"
+                            className="p-1 rounded-lg text-emerald-500 hover:bg-emerald-500/10 transition-colors cursor-pointer"
                           >
                             <Share2 className="w-4 h-4" />
                           </button>
@@ -418,74 +405,94 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
 
       {/* Add New Debt Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div
-            className={`w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border ${
-              darkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
-            }`}
-          >
-            <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 flex justify-between items-center">
-              <h3 className="font-extrabold text-sm tracking-tight">Catat Kasbon Pelanggan Baru</h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="p-1 rounded-lg text-slate-400 hover:text-slate-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border bg-zinc-900 border-zinc-800 text-zinc-100">
+            <div className="px-5 py-4 border-b border-zinc-800 bg-zinc-950 flex justify-between items-center">
+              <h3 className="font-extrabold text-sm tracking-tight text-white">Catat Kasbon Pelanggan Baru</h3>
+              <button onClick={() => setIsAddModalOpen(false)} className="p-1 rounded-lg text-zinc-400 hover:text-white cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleAddSubmit} className="p-5 space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Nama Pelanggan:</label>
+                <label className="block text-xs font-bold text-zinc-400 mb-1">Nama Pelanggan:</label>
                 <input
                   type="text"
                   value={formData.customerName}
                   onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                   placeholder="Contoh: Pak RT / Bu Marni"
-                  className="w-full px-3 py-2 rounded-xl border text-xs font-bold bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 rounded-xl border text-xs font-bold bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 font-mono">No. WhatsApp:</label>
+                <label className="block text-xs font-bold text-zinc-400 mb-1 font-mono">No. WhatsApp:</label>
                 <input
                   type="text"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="0812xxxxxxxx"
-                  className="w-full px-3 py-2 rounded-xl border text-xs font-mono bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 rounded-xl border text-xs font-mono bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 font-mono">Nominal Kasbon (Rp):</label>
+                <label className="block text-xs font-bold text-zinc-400 mb-1">Alamat / RT (Opsional):</label>
                 <input
-                  type="number"
-                  value={formData.amount}
-                  onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
-                  className="w-full px-3 py-2 rounded-xl border text-sm font-bold font-numeric text-amber-500 bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  required
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="RT 02 / Gang Kenanga"
+                  className="w-full px-3 py-2 rounded-xl border text-xs bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
+              <div className="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-400 mb-1 font-mono">Nominal Hutang (Rp):</label>
+                  <input
+                    type="number"
+                    min="1000"
+                    step="1000"
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
+                    className="w-full px-3 py-2 rounded-xl border text-xs font-mono font-bold text-amber-400 bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-zinc-400 mb-1 font-mono">Jatuh Tempo:</label>
+                  <input
+                    type="date"
+                    value={formData.dueDate}
+                    onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border text-xs font-mono bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Catatan / Barang:</label>
+                <label className="block text-xs font-bold text-zinc-400 mb-1">Keterangan Belanja:</label>
                 <input
                   type="text"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border text-xs bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 rounded-xl border text-xs bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-3 border-t border-zinc-800 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-300 dark:border-slate-800 text-slate-400 hover:text-slate-200"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-zinc-400 hover:text-white cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-black bg-amber-500 text-slate-950 hover:bg-amber-400"
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs shadow-md cursor-pointer"
                 >
                   Simpan Kasbon
                 </button>
@@ -495,77 +502,65 @@ export const DebtsView: React.FC<DebtsViewProps> = ({
         </div>
       )}
 
-      {/* Pay Debt Modal */}
+      {/* Repayment Modal */}
       {isPayModalOpen && selectedDebt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div
-            className={`w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border ${
-              darkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
-            }`}
-          >
-            <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 flex justify-between items-center">
-              <h3 className="font-extrabold text-sm tracking-tight">Pembayaran Kasbon: {selectedDebt.customerName}</h3>
-              <button onClick={() => setIsPayModalOpen(false)} className="p-1 rounded-lg text-slate-400 hover:text-slate-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden border bg-zinc-900 border-zinc-800 text-zinc-100">
+            <div className="px-5 py-4 border-b border-zinc-800 bg-zinc-950 flex justify-between items-center">
+              <div>
+                <h3 className="font-extrabold text-sm text-white">Catat Cicilan / Pelunasan</h3>
+                <p className="text-[11px] text-zinc-400">{selectedDebt.customerName}</p>
+              </div>
+              <button onClick={() => setIsPayModalOpen(false)} className="p-1 rounded-lg text-zinc-400 hover:text-white cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handlePaySubmit} className="p-5 space-y-4">
-              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs">
-                Sisa Hutang Saat Ini: <strong className="text-amber-600 dark:text-amber-400 text-sm font-numeric font-bold">{formatRupiah(selectedDebt.totalDebt)}</strong>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 font-mono">Jumlah Yang Dibayarkan (Rp):</label>
-                <input
-                  type="number"
-                  value={payAmount}
-                  onChange={(e) => setPayAmount(Math.min(selectedDebt.totalDebt, Number(e.target.value)))}
-                  className="w-full px-3 py-2 rounded-xl border text-base font-bold font-numeric text-emerald-600 dark:text-emerald-400 bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  required
-                />
-                <div className="flex gap-1.5 mt-2">
-                  <button
-                    type="button"
-                    onClick={() => setPayAmount(selectedDebt.totalDebt)}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-bold font-numeric text-[11px]"
-                  >
-                    Bayar Lunas ({formatRupiah(selectedDebt.totalDebt)})
-                  </button>
-                  {selectedDebt.totalDebt > 20000 && (
-                    <button
-                      type="button"
-                      onClick={() => setPayAmount(Math.round(selectedDebt.totalDebt / 2))}
-                      className="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold font-numeric text-[11px]"
-                    >
-                      Bayar 50%
-                    </button>
-                  )}
+            <form onSubmit={handlePaySubmit} className="p-5 space-y-3.5">
+              <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 font-mono">
+                <span className="text-[10px] text-zinc-400 uppercase">Sisa Kasbon Saat Ini:</span>
+                <div className="text-xl font-black text-amber-400">
+                  {formatRupiah(selectedDebt.totalDebt)}
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Keterangan Pembayaran:</label>
+                <label className="block text-xs font-bold text-zinc-400 mb-1 font-mono">
+                  Jumlah yang Dibayar (Rp):
+                </label>
+                <input
+                  type="number"
+                  min="500"
+                  max={selectedDebt.totalDebt}
+                  value={payAmount}
+                  onChange={(e) => setPayAmount(Number(e.target.value))}
+                  className="w-full px-3 py-2 rounded-xl border text-sm font-mono font-bold text-emerald-400 bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-400 mb-1">Catatan Pembayaran:</label>
                 <input
                   type="text"
                   value={payNotes}
                   onChange={(e) => setPayNotes(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border text-xs bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 rounded-xl border text-xs bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-2 flex justify-end gap-2 border-t border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setIsPayModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-300 dark:border-slate-800 text-slate-400 hover:text-slate-200"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-zinc-400 hover:text-white cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-black bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 hover:bg-emerald-500 dark:hover:bg-emerald-400"
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs shadow-md cursor-pointer"
                 >
-                  Simpan Pembayaran
+                  Konfirmasi Pembayaran
                 </button>
               </div>
             </form>
