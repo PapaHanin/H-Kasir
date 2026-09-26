@@ -36,6 +36,7 @@ interface GuideViewProps {
   darkMode: boolean;
   onNavigateTab: (tab: 'dashboard' | 'cashier' | 'inventory' | 'reports' | 'debts' | 'settings') => void;
   onOpenSettings: () => void;
+  onOpenBrochure?: () => void;
 }
 
 type GuideCategory = 'all' | 'workflow' | 'navigation' | 'printer' | 'shortcuts' | 'faq';
@@ -44,6 +45,7 @@ export const GuideView: React.FC<GuideViewProps> = ({
   darkMode,
   onNavigateTab,
   onOpenSettings,
+  onOpenBrochure,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<GuideCategory>('all');
@@ -157,6 +159,40 @@ export const GuideView: React.FC<GuideViewProps> = ({
           </button>
         )}
       </div>
+
+      {/* Portofolio & Brosur Penawaran 1 Halaman Banner */}
+      {onOpenBrochure && (
+        <div className={`p-4 sm:p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+          darkMode ? 'bg-linear-to-r from-amber-950/40 to-slate-900 border-amber-500/30' : 'bg-linear-to-r from-amber-50 to-orange-50 border-amber-200'
+        }`}>
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 bg-amber-500 text-zinc-950 rounded-xl shadow-xs shrink-0 font-black">
+              <FileText className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-amber-300">
+                  Brosur Penawaran 1 Halaman (One-Pager) Siap Cetak &amp; WhatsApp
+                </h3>
+                <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-black uppercase font-mono">
+                  Alat Promosi
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 max-w-2xl">
+                Gunakan lembar penawaran resmi ini saat menawarkan aplikasi ke pemilik warung, minimarket rumahan, butik, atau UMKM. Berisi 4 keunggulan utama, paket harga transparan, garansi 30 hari, dan kontak WhatsApp Anda.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenBrochure}
+            className="w-full sm:w-auto px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs rounded-xl flex items-center justify-center gap-2 shrink-0 cursor-pointer shadow-md active:scale-95 transition-all"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Buka Brosur / Cetak PDF</span>
+          </button>
+        </div>
+      )}
 
       {/* Main Guide Content Blocks */}
       <div className="space-y-4">
@@ -366,7 +402,8 @@ export const GuideView: React.FC<GuideViewProps> = ({
                     </button>
                   </div>
                   <ul className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-1 list-disc list-inside">
-                    <li><strong>Tombol Tambah Produk Baru:</strong> Tambahkan barang dagangan baru, lengkapi dengan barcode, harga modal kulakan, harga jual eceran, dan stok awal.</li>
+                    <li><strong>Tombol Tambah Produk Baru:</strong> Tambahkan barang dagangan baru, lengkapi dengan barcode, nama, harga modal, harga jual, dan stok awal.</li>
+                    <li><strong>Foto Produk (Kamera & Galeri):</strong> Bisa jepret langsung dari kamera HP atau unggah dari galeri. Foto otomatis dikompres ringan (~25 KB) sehingga kasir cepat mengenali barang tanpa membuat HP lemot.</li>
                     <li><strong>Penyesuaian Stok Cepat (Adjust Stock):</strong> Tombol untuk menambah stok saat barang baru datang dari distributor, atau mengurangi stok saat ada barang pecah/kedaluwarsa (disertai alasan pencatatan).</li>
                     <li><strong>Cetak Label Barcode:</strong> Cetak stiker barcode untuk barang yang belum memiliki barcode dari pabrik (misal: beras curah, gula kiloan, telur).</li>
                     <li><strong>Hapus Massal & Filter:</strong> Pilih banyak barang sekaligus untuk dihapus atau diperbarui.</li>

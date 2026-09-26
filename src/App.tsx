@@ -27,6 +27,7 @@ import { ReceiptModal } from './components/ReceiptModal';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import { GuideView } from './components/GuideView';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { BrochureModal } from './components/BrochureModal';
 
 export default function App() {
   // Database state
@@ -60,6 +61,7 @@ export default function App() {
   // Modals state
   const [isShiftModalOpen, setIsShiftModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isBrochureModalOpen, setIsBrochureModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<Transaction | null>(null);
 
   // Sync debounce ref to avoid excessive cloud writes
@@ -626,6 +628,7 @@ export default function App() {
         isMobileDrawerOpen={isMobileDrawerOpen}
         setIsMobileDrawerOpen={setIsMobileDrawerOpen}
         onUpdateOwner={handleUpdateOwner}
+        onOpenBrochure={settings?.showSalesBrochure ? () => setIsBrochureModalOpen(true) : undefined}
       />
 
       {/* 2. Right Main Scrollable View Area */}
@@ -713,6 +716,7 @@ export default function App() {
               darkMode={darkMode}
               onNavigateTab={handleTabChange}
               onOpenSettings={() => setIsSettingsModalOpen(true)}
+              onOpenBrochure={settings?.showSalesBrochure ? () => setIsBrochureModalOpen(true) : undefined}
             />
           )}
         </main>
@@ -773,7 +777,23 @@ export default function App() {
         }}
       />
 
-      {/* 7. Mobile Bottom Navigation (Ergonomic layout for smartphones & PWA) */}
+      {/* 7. Marketing Brochure One-Pager Modal */}
+      <BrochureModal
+        isOpen={isBrochureModalOpen}
+        onClose={() => setIsBrochureModalOpen(false)}
+        storeName={settings?.storeName}
+        onHideBrochurePermanently={() => {
+          const updatedSettings: StoreSettings = {
+            ...settings,
+            showSalesBrochure: false,
+          };
+          db.saveSettings(updatedSettings);
+          setSettings(updatedSettings);
+          sound.playSuccess();
+        }}
+      />
+
+      {/* 8. Mobile Bottom Navigation (Ergonomic layout for smartphones & PWA) */}
       <MobileBottomNav
         activeTab={activeTab}
         setActiveTab={handleTabChange}

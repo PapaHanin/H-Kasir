@@ -33,6 +33,7 @@ import { formatRupiah } from '../services/export';
 import { sound } from '../services/sound';
 import { CheckoutModal } from './CheckoutModal';
 import { BarcodeScannerModal } from './BarcodeScannerModal';
+import { ProductImageUploader } from './ProductImageUploader';
 
 const CATEGORIES: ('ALL' | ProductCategory)[] = [
   'ALL',
@@ -108,6 +109,7 @@ export const CashierView: React.FC<CashierViewProps> = ({
   const [quickSellPrice, setQuickSellPrice] = useState<number>(0);
   const [quickStock, setQuickStock] = useState<number>(20);
   const [quickUnit, setQuickUnit] = useState<string>('pcs');
+  const [quickImageUrl, setQuickImageUrl] = useState<string | undefined>(undefined);
 
   // Cart Checkbox Selection Helpers
   const isAllCartSelected = useMemo(() => {
@@ -420,6 +422,7 @@ export const CashierView: React.FC<CashierViewProps> = ({
       stock: quickStock,
       minStock: 5,
       unit: quickUnit.trim() || 'pcs',
+      imageUrl: quickImageUrl || undefined,
       isActive: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -428,6 +431,7 @@ export const CashierView: React.FC<CashierViewProps> = ({
     onSaveProduct?.(newProd);
     handleAddToCart(newProd, 1);
     setIsQuickRegisterOpen(false);
+    setQuickImageUrl(undefined);
     setScanToast(`✓ +1 ${newProd.name} didaftarkan & masuk keranjang!`);
     setTimeout(() => setScanToast(null), 3500);
     sound.playSuccess();
@@ -606,10 +610,21 @@ export const CashierView: React.FC<CashierViewProps> = ({
                       </span>
                     </div>
 
-                    {/* Product Name */}
-                    <h3 className="font-bold text-xs sm:text-sm line-clamp-2 leading-snug text-zinc-900 dark:text-zinc-100 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">
-                      {product.name}
-                    </h3>
+                    {/* Product Image / Icon and Name */}
+                    <div className="flex items-start gap-2.5">
+                      {product.imageUrl ? (
+                        <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950">
+                          <img
+                            src={product.imageUrl}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        </div>
+                      ) : null}
+                      <h3 className="font-bold text-xs sm:text-sm line-clamp-2 leading-snug text-zinc-900 dark:text-zinc-100 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors flex-1">
+                        {product.name}
+                      </h3>
+                    </div>
                   </div>
 
                   {/* Price & Add Footer */}
@@ -737,6 +752,13 @@ export const CashierView: React.FC<CashierViewProps> = ({
                               <Square className="w-3.5 h-3.5" />
                             )}
                           </button>
+                          {item.product.imageUrl && (
+                            <img
+                              src={item.product.imageUrl}
+                              alt={item.product.name}
+                              className="w-7 h-7 rounded-md object-cover border border-zinc-200 dark:border-zinc-700 shrink-0"
+                            />
+                          )}
                           <div className="min-w-0 flex-1">
                             <h4 className="font-bold text-xs truncate text-zinc-900 dark:text-zinc-100">
                               {item.product.name}
@@ -936,13 +958,22 @@ export const CashierView: React.FC<CashierViewProps> = ({
               {cart.map((item) => (
                 <div key={item.product.id} className="pt-2 first:pt-0">
                   <div className="flex items-start justify-between">
-                    <div>
-                      <div className="font-bold text-xs text-white">{item.product.name}</div>
-                      <div className="text-[10px] text-zinc-400 font-mono">
-                        {formatRupiah(item.product.sellPrice)} / {item.product.unit}
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      {item.product.imageUrl && (
+                        <img
+                          src={item.product.imageUrl}
+                          alt={item.product.name}
+                          className="w-8 h-8 rounded-lg object-cover border border-zinc-700 shrink-0"
+                        />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold text-xs text-white truncate">{item.product.name}</div>
+                        <div className="text-[10px] text-zinc-400 font-mono">
+                          {formatRupiah(item.product.sellPrice)} / {item.product.unit}
+                        </div>
                       </div>
                     </div>
-                    <div className="font-bold text-xs text-amber-400 font-mono">
+                    <div className="font-bold text-xs text-amber-400 font-mono shrink-0 pl-2">
                       {formatRupiah(item.subtotal)}
                     </div>
                   </div>
@@ -1157,6 +1188,15 @@ export const CashierView: React.FC<CashierViewProps> = ({
                   onChange={(e) => setQuickStock(Number(e.target.value))}
                   className="w-full px-3 py-2 rounded-xl border text-xs font-mono bg-zinc-950 border-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   required
+                />
+              </div>
+
+              {/* Photo Uploader */}
+              <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800">
+                <ProductImageUploader
+                  currentImageUrl={quickImageUrl}
+                  onImageChange={(img) => setQuickImageUrl(img)}
+                  productName={quickName}
                 />
               </div>
 

@@ -13,6 +13,7 @@ import {
   Edit2,
   CheckCircle2,
   LogOut,
+  FileText,
 } from 'lucide-react';
 import { CashierUser, CashierShift, StoreSettings } from '../types';
 
@@ -33,6 +34,7 @@ interface SidebarProps {
   isMobileDrawerOpen: boolean;
   setIsMobileDrawerOpen: (open: boolean) => void;
   onUpdateOwner?: (newName: string, newPin?: string) => void;
+  onOpenBrochure?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -50,6 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileDrawerOpen,
   setIsMobileDrawerOpen,
   onUpdateOwner,
+  onOpenBrochure,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isEditOwnerModalOpen, setIsEditOwnerModalOpen] = useState(false);
@@ -272,6 +275,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
           ))}
+
+          {/* Brosur Penawaran 1 Halaman (One-Pager) button for Marketing / Sales */}
+          {onOpenBrochure && (
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenBrochure();
+                  setIsMobileDrawerOpen(false);
+                }}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-bold text-xs bg-linear-to-r from-amber-500/10 to-amber-500/20 text-amber-400 hover:from-amber-500/20 hover:to-amber-500/30 border border-amber-500/30 transition-all cursor-pointer group shadow-sm active:scale-95"
+                title="Buka Brosur Penawaran 1 Halaman (Siap Cetak / Bagikan WA)"
+              >
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <FileText className="w-4 h-4 shrink-0 text-amber-400 group-hover:scale-110 transition-transform" />
+                  {!isCollapsed && (
+                    <span className="truncate tracking-wide font-extrabold text-amber-300">
+                      Brosur Penawaran Toko
+                    </span>
+                  )}
+                </div>
+                {!isCollapsed && (
+                  <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-400 text-zinc-950">
+                    PDF
+                  </span>
+                )}
+              </button>
+            </div>
+          )}
         </nav>
 
         {/* Bottom Section: Cashier User Profile + Edit Modal Trigger */}

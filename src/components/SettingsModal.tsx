@@ -681,6 +681,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
                   />
                 </label>
+
+                <label className="flex items-center justify-between cursor-pointer text-xs font-semibold text-zinc-200 pt-1 border-t border-zinc-900">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <FileCode className="w-4 h-4 text-amber-400" />
+                      <span>Tampilkan Brosur Penawaran Toko (Untuk Penjual/Sales)</span>
+                    </div>
+                    <p className="text-[10px] text-zinc-400 font-normal pl-6">
+                      Matikan opsi ini saat aplikasi sudah resmi diserahkan ke pemilik toko/kasir agar menu brosur bersih & tidak terlihat.
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={storeForm.showSalesBrochure ?? false}
+                    onChange={(e) => {
+                      setStoreForm({ ...storeForm, showSalesBrochure: e.target.checked });
+                    }}
+                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                  />
+                </label>
               </div>
 
               <div className="pt-2 flex justify-end">
@@ -1329,25 +1349,51 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-2">
                 <div className="flex items-center gap-2 text-amber-500 font-bold text-xs">
                   <Sparkles className="w-4 h-4" />
-                  <span>Persiapan Toko Baru (Sebelum Serah Terima ke Klien)</span>
+                  <span>Persiapan Toko Baru & Serah Terima Klien (UMKM / Toko Non-Kelontong)</span>
                 </div>
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  Gunakan tombol ini jika Anda ingin menyerahkan aplikasi ke pemilik toko baru. Riwayat transaksi demo, kasbon demo, dan log shift akan dikosongkan (mulai dari Rp 0), namun seluruh katalog master barang sembako tetap dipertahankan.
+                  Gunakan tombol di bawah ini sebelum menyerahkan aplikasi ke pemilik toko baru. Anda bisa mengosongkan riwayat pembukuan saja, atau mengosongkan seluruh katalog produk jika klien adalah toko non-kelontong (butik, laundry, cafe, konter pulsa, toko alat tulis, dll).
                 </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (confirm('PERINGATAN: Apakah Anda yakin ingin membersihkan seluruh riwayat transaksi, kasbon, dan shift untuk toko baru? Master produk tetap tersimpan.')) {
-                      db.clearStoreForNewClient({ keepProducts: true });
-                      onRestoreCompleted();
-                      sound.playSuccess();
-                      alert('Riwayat transaksi toko berhasil dibersihkan! Pembukuan toko baru siap dimulai dari nol.');
-                    }
-                  }}
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs rounded-xl cursor-pointer shadow-md transition-all active:scale-95"
-                >
-                  Bersihkan Riwayat Transaksi Toko Baru
-                </button>
+                <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm('PERINGATAN: Apakah Anda yakin ingin membersihkan seluruh riwayat transaksi, kasbon, dan shift untuk toko baru? Master produk tetap tersimpan, dan mode brosur penawaran akan disembunyikan.')) {
+                        db.clearStoreForNewClient({ keepProducts: true });
+                        const currentSettings = db.load().settings;
+                        currentSettings.showSalesBrochure = false;
+                        db.saveSettings(currentSettings);
+                        onSaveSettings(currentSettings);
+                        onRestoreCompleted();
+                        sound.playSuccess();
+                        alert('Riwayat transaksi toko berhasil dibersihkan & menu brosur otomatis disembunyikan! Pembukuan toko klien siap dimulai dari nol.');
+                      }
+                    }}
+                    className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs rounded-xl cursor-pointer shadow-md transition-all active:scale-95"
+                  >
+                    Bersihkan Riwayat Transaksi Toko Baru
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const confirm1 = confirm('PERINGATAN BESAR: Apakah Anda yakin ingin MENGHAPUS SELURUH DATA PRODUK?\n\nKatalog produk akan menjadi KOSONG TOTAL (0 barang). Sangat cocok jika aplikasi ini akan dipakai untuk UMKM atau jenis toko selain kelontong (misal toko baju, cafe, apotek, dll).');
+                      if (confirm1) {
+                        const confirm2 = confirm('Konfirmasi sekali lagi: Semua produk saat ini akan dihapus permanen. Lanjutkan?');
+                        if (confirm2) {
+                          db.clearAllProducts();
+                          onRestoreCompleted();
+                          sound.playSuccess();
+                          alert('Seluruh data produk berhasil dikosongkan! Anda sekarang bisa memasukkan katalog produk baru dari awal.');
+                        }
+                      }
+                    }}
+                    className="px-3.5 py-2 bg-rose-600/10 hover:bg-rose-600/20 text-rose-600 dark:text-rose-400 border border-rose-500/30 font-bold text-xs rounded-xl cursor-pointer transition-all active:scale-95 flex items-center gap-1.5"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                    <span>Hapus Seluruh Data Produk</span>
+                  </button>
+                </div>
               </div>
 
               {/* Reset to Factory Default */}

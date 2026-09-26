@@ -23,6 +23,7 @@ import { Product, ProductCategory, StockLog, StoreSettings } from '../types';
 import { formatRupiah, exportStockToExcel, exportStockPDF } from '../services/export';
 import { sound } from '../services/sound';
 import { BarcodeScannerModal } from './BarcodeScannerModal';
+import { ProductImageUploader } from './ProductImageUploader';
 
 const ALL_CATEGORIES: ProductCategory[] = [
   'Sembako & Beras',
@@ -89,6 +90,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
     stock: 20,
     minStock: 5,
     unit: 'pcs',
+    imageUrl: '' as string | undefined,
   });
 
   // Stock Adjustment Form
@@ -138,6 +140,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
       stock: 25,
       minStock: 5,
       unit: 'pcs',
+      imageUrl: undefined,
     });
     setIsModalOpen(true);
   };
@@ -153,6 +156,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
       stock: product.stock,
       minStock: product.minStock,
       unit: product.unit,
+      imageUrl: product.imageUrl,
     });
     setIsModalOpen(true);
   };
@@ -205,6 +209,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
       stock: Number(formData.stock),
       minStock: Number(formData.minStock),
       unit: formData.unit.trim() || 'pcs',
+      imageUrl: formData.imageUrl || undefined,
       isActive: true,
       createdAt: editingProduct ? editingProduct.createdAt : new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -563,7 +568,20 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                       <td className="px-3 py-3 text-slate-400 font-mono">{idx + 1}</td>
                       <td className="px-4 py-3 font-mono text-slate-500 dark:text-slate-400">{product.barcode}</td>
                       <td className="px-4 py-3 font-bold text-slate-800 dark:text-slate-100">
-                        {product.name}
+                        <div className="flex items-center gap-2.5">
+                          {product.imageUrl ? (
+                            <img
+                              src={product.imageUrl}
+                              alt={product.name}
+                              className="w-8 h-8 rounded-lg object-cover border border-slate-200 dark:border-slate-700 shrink-0 shadow-2xs"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 flex items-center justify-center shrink-0 text-slate-400 text-xs">
+                              📦
+                            </div>
+                          )}
+                          <span className="truncate max-w-[200px] sm:max-w-xs">{product.name}</span>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-slate-500">{product.category}</td>
                       <td className="px-4 py-3 text-right font-numeric text-slate-600 dark:text-slate-400">
@@ -826,6 +844,15 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                   placeholder="Contoh: Beras Ramos Super 5kg / Indomie Goreng"
                   className="w-full px-3 py-2 rounded-xl border text-xs font-bold bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   required
+                />
+              </div>
+
+              {/* Photo Uploader (Camera & Gallery with automatic lightweight compression) */}
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800">
+                <ProductImageUploader
+                  currentImageUrl={formData.imageUrl}
+                  onImageChange={(newImg) => setFormData({ ...formData, imageUrl: newImg })}
+                  productName={formData.name}
                 />
               </div>
 

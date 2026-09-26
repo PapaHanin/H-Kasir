@@ -1275,6 +1275,15 @@ class LocalEncryptedDatabase {
     this.save(fresh);
   }
 
+  // Clear all products (for empty catalog setup e.g. non-grocery UMKM / fashion / food)
+  public clearAllProducts() {
+    const current = this.load();
+    current.products = [];
+    current.heldCarts = [];
+    this.save(current);
+    return current;
+  }
+
   // Clear transactional history for a new store client (wipes transactions, debts, shifts, logs)
   public clearStoreForNewClient(options?: { keepProducts?: boolean }) {
     const current = this.load();

@@ -147,6 +147,7 @@ export interface StoreSettings {
   playAudioFeedback: boolean;
   encryptionEnabled: boolean;
   enableCloudSync?: boolean;
+  showSalesBrochure?: boolean; // Saklar untuk menyembunyikan brosur penawaran setelah aplikasi diserahkan ke klien
   vaultKeyHash?: string;
 }
 
