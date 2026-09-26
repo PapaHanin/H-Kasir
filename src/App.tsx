@@ -628,7 +628,7 @@ export default function App() {
         isMobileDrawerOpen={isMobileDrawerOpen}
         setIsMobileDrawerOpen={setIsMobileDrawerOpen}
         onUpdateOwner={handleUpdateOwner}
-        onOpenBrochure={settings?.showSalesBrochure ? () => setIsBrochureModalOpen(true) : undefined}
+        onOpenBrochure={settings?.showSalesBrochure !== false ? () => setIsBrochureModalOpen(true) : undefined}
       />
 
       {/* 2. Right Main Scrollable View Area */}
@@ -716,7 +716,7 @@ export default function App() {
               darkMode={darkMode}
               onNavigateTab={handleTabChange}
               onOpenSettings={() => setIsSettingsModalOpen(true)}
-              onOpenBrochure={settings?.showSalesBrochure ? () => setIsBrochureModalOpen(true) : undefined}
+              onOpenBrochure={settings?.showSalesBrochure !== false ? () => setIsBrochureModalOpen(true) : undefined}
             />
           )}
         </main>

@@ -105,6 +105,7 @@ const INITIAL_SETTINGS: StoreSettings = {
   playAudioFeedback: true,
   encryptionEnabled: true,
   enableCloudSync: false,
+  showSalesBrochure: true,
 };
 
 const INITIAL_PRODUCTS: Product[] = [
@@ -1102,8 +1103,13 @@ class LocalEncryptedDatabase {
       }
       if (!data.settings) {
         data.settings = INITIAL_SETTINGS;
-      } else if (data.settings.enableCloudSync === undefined) {
-        data.settings.enableCloudSync = false;
+      } else {
+        if (data.settings.enableCloudSync === undefined) {
+          data.settings.enableCloudSync = false;
+        }
+        if (data.settings.showSalesBrochure === undefined) {
+          data.settings.showSalesBrochure = true;
+        }
       }
       if (!data.debts) data.debts = [];
       if (!data.transactions) data.transactions = [];

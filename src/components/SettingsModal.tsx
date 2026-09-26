@@ -192,6 +192,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     if (!s.ownerName) s.ownerName = 'Pemilik / Kasir Utama';
     if (!s.qrisMode) s.qrisMode = 'DYNAMIC_NMID';
     if (!s.qrisCity) s.qrisCity = 'JAKARTA';
+    if (s.showSalesBrochure === undefined) s.showSalesBrochure = true;
     if (s.storeName && (s.storeName.toLowerCase().includes('sawit') || s.storeName.toLowerCase().includes('hasil bumi'))) {
       s.storeName = 'Toko Kelontong Berkah Sejahtera';
       s.tagline = 'Lengkap, Murah & Melayani Sepenuh Hati';
@@ -201,13 +202,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     return s;
   });
 
+  useEffect(() => {
+    if (isOpen) {
+      const s = { ...settings };
+      if (!s.ownerName) s.ownerName = 'Pemilik / Kasir Utama';
+      if (!s.qrisMode) s.qrisMode = 'DYNAMIC_NMID';
+      if (!s.qrisCity) s.qrisCity = 'JAKARTA';
+      if (s.showSalesBrochure === undefined) s.showSalesBrochure = true;
+      setStoreForm(s);
+      setUserList([...users]);
+    }
+  }, [isOpen, settings, users]);
+
   // Handle upload of custom QRIS image
   const handleQrisImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (file.size > 3 * 1024 * 1024) {
-      alert('Ukuran gambar terlalu besar! Maksimal 3MB.');
+      setStatusMsg({ text: 'Ukuran gambar terlalu besar! Maksimal 3MB.', type: 'error' });
+      sound.playError();
+      setTimeout(() => setStatusMsg(null), 3500);
       return;
     }
 
@@ -694,7 +709,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                   <input
                     type="checkbox"
-                    checked={storeForm.showSalesBrochure ?? false}
+                    checked={storeForm.showSalesBrochure !== false}
                     onChange={(e) => {
                       setStoreForm({ ...storeForm, showSalesBrochure: e.target.checked });
                     }}

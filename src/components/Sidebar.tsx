@@ -285,7 +285,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onOpenBrochure();
                   setIsMobileDrawerOpen(false);
                 }}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-bold text-xs bg-linear-to-r from-amber-500/10 to-amber-500/20 text-amber-400 hover:from-amber-500/20 hover:to-amber-500/30 border border-amber-500/30 transition-all cursor-pointer group shadow-sm active:scale-95"
+                className={`w-full flex items-center ${
+                  isCollapsed ? 'justify-center' : 'justify-between'
+                } px-3 py-2.5 rounded-xl font-bold text-xs bg-linear-to-r from-amber-500/10 to-amber-500/20 text-amber-400 hover:from-amber-500/20 hover:to-amber-500/30 border border-amber-500/30 transition-all cursor-pointer group shadow-sm active:scale-95`}
                 title="Buka Brosur Penawaran 1 Halaman (Siap Cetak / Bagikan WA)"
               >
                 <div className="flex items-center gap-3 overflow-hidden">
